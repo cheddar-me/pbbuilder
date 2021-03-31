@@ -68,7 +68,9 @@ class Pbbuilder < BasicObject
           extract!(item, *args)
         end
       else
-        extract!(element, *args)
+        set!(name) do
+          extract!(element, *args)
+        end
       end
     end
   end

@@ -19,11 +19,13 @@ class PbbuilderTest < ActiveSupport::TestCase
     person = Pbbuilder.new(API::Person.new) do |pb|
       pb.name "Hello world"
       pb.friends friends, :name
+      pb.best_friend friends[0], :name
     end.target!
 
     assert_equal person.name, "Hello world"
     assert_equal person.friends.size, 2
     assert_equal person.friends.first.name, "Friend 1"
     assert_equal person.friends.last.name, "Friend 2"
+    assert_equal person.best_friend.name, "Friend 1"
   end
 end

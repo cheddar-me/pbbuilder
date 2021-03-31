@@ -14,6 +14,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     add_message "pbbuildertest.Person" do
       optional :name, :string, 1
       repeated :friends, :message, 2, "pbbuildertest.Person"
+      optional :best_friend, :message, 3, "pbbuildertest.Person"
     end
   end
 end
