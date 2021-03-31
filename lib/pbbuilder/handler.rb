@@ -6,7 +6,7 @@ class PbbuilderHandler
   def self.call(template, source = nil)
     source ||= template.source
     # We need to keep `source` on the first line, so line numbers are correct if there's an error
-    %{pb=Pbbuilder.new(response_class.new); #{source}
+    %{pb=Pbbuilder.new(@_response_class.new); #{source}
       pb.target!}
   end
 end
