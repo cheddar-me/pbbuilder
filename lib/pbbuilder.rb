@@ -117,4 +117,5 @@ class Pbbuilder < BasicObject
   end
 end
 
+require "pbbuilder/protobuf_extension"
 require "pbbuilder/railtie" if defined?(Rails)

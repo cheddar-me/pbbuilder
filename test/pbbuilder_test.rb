@@ -1,5 +1,4 @@
 require "test_helper"
-require "pbbuilder"
 
 class PbbuilderTest < ActiveSupport::TestCase
   test "it makes it possible to create a person" do
