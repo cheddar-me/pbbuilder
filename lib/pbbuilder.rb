@@ -44,7 +44,7 @@ class Pbbuilder < BasicObject
       raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
       if descriptor.label == :repeated
-        # pb.field @array { |element| pb.name = element.name }
+        # pb.field @array { |element| pb.name element.name }
         raise ::ArgumentError, "wrong number of arguments (expected 1)" unless args.length == 1
         collection = args.first
         _append_repeated(name, descriptor, collection, &block)
@@ -52,11 +52,24 @@ class Pbbuilder < BasicObject
       end
 
       raise ::ArgumentError, "wrong number of arguments (expected 0)" unless args.empty?
-      # pb.field { pb.name = "hello" }
+      # pb.field { pb.name "hello" }
       message = (@message[name] ||= _new_message_from_descriptor(descriptor))
       _scope(message, &block)
     elsif args.length == 1
-      @message[name] = args.first
+      arg = args.first
+      if descriptor.label == :repeated
+        if arg.respond_to?(:to_ary)
+          # pb.fields ["one", "two"]
+          # Using concat so it behaves the same as _append_repeated
+          @message[name].concat arg.to_ary
+        else
+          # pb.fields "one"
+          @message[name].push arg
+        end
+      else
+        # pb.field "value"
+        @message[name] = arg
+      end
     else
       # pb.field @value, :id, :name, :url
       element = args.shift

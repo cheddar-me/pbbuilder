@@ -7,9 +7,18 @@ class PbbuilderTest < ActiveSupport::TestCase
       pb.friends 1..3 do |number|
         pb.name "Friend ##{number}"
       end
+      pb.best_friend do
+        pb.name "Manuelo"
+      end
+      pb.field_mask do
+        pb.paths ["ok", "that's"]
+        pb.paths "cool"
+      end
     end.target!
-    assert_equal person.name, "Hello world"
-    assert_equal person.friends.first.name, "Friend #1"
+    assert_equal "Hello world", person.name
+    assert_equal "Friend #1", person.friends.first.name
+    assert_equal ["ok", "that's", "cool"], person.field_mask.paths
+    assert_equal "Manuelo", person.best_friend.name
   end
 
   test "it can extract fields in a nice way" do
