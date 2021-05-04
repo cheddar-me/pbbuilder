@@ -19,6 +19,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :best_friend, :message, 3, "pbbuildertest.Person"
       repeated :nicknames, :string, 4
       optional :field_mask, :message, 5, "google.protobuf.FieldMask"
+      map :favourite_foods, :string, :string, 6
     end
   end
 end

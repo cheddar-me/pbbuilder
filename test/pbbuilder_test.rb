@@ -14,11 +14,18 @@ class PbbuilderTest < ActiveSupport::TestCase
         pb.paths ["ok", "that's"]
         pb.paths "cool"
       end
+      pb.favourite_foods({
+        "Breakfast" => "Eggs",
+        "Lunch" => "Shawarma",
+        "Dinner" => "Pizza"
+      })
     end.target!
+
     assert_equal "Hello world", person.name
     assert_equal "Friend #1", person.friends.first.name
     assert_equal ["ok", "that's", "cool"], person.field_mask.paths
     assert_equal "Manuelo", person.best_friend.name
+    assert_equal "Eggs", person.favourite_foods["Breakfast"]
   end
 
   test "it can extract fields in a nice way" do
