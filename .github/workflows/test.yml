@@ -1,0 +1,22 @@
+name: ruby
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby: ["2.7", "3.0.1"]
+    name: tests for ruby-${{ matrix.ruby }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{ matrix.ruby }}
+
+      - name: Run tests
+        run: bin/test
