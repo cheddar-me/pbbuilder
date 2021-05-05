@@ -58,9 +58,9 @@ class Pbbuilder < BasicObject
     elsif args.length == 1
       arg = args.first
       if descriptor.label == :repeated
-        if arg.kind_of?(::Hash)
+        if arg.respond_to?(:to_hash)
           # pb.fields {"one" => "two"}
-          arg.to_h.each do |k, v|
+          arg.to_hash.each do |k, v|
             @message[name][k] = v
           end
         elsif arg.respond_to?(:to_ary)
