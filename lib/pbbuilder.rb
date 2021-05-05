@@ -58,7 +58,12 @@ class Pbbuilder < BasicObject
     elsif args.length == 1
       arg = args.first
       if descriptor.label == :repeated
-        if arg.respond_to?(:to_ary)
+        if arg.respond_to?(:to_hash)
+          # pb.fields {"one" => "two"}
+          arg.to_hash.each do |k, v|
+            @message[name][k] = v
+          end
+        elsif arg.respond_to?(:to_ary)
           # pb.fields ["one", "two"]
           # Using concat so it behaves the same as _append_repeated
           @message[name].concat arg.to_ary
