@@ -1,3 +1,5 @@
+# PbbuilderTemplate is an extension of Pbbuilder to be used as a Rails template
+# It adds support for partials.
 class PbbuilderTemplate < Pbbuilder
   class << self
     attr_accessor :template_lookup_options
@@ -10,6 +12,13 @@ class PbbuilderTemplate < Pbbuilder
     super(message)
   end
 
+  # Render a partial. Can be called as:
+  # pb.partial! "name/of_partial", argument: 123
+  # pb.partial! "name/of_partial", locals: {argument: 123}
+  # pb.partial! partial: "name/of_partial", argument: 123
+  # pb.partial! partial: "name/of_partial", locals: {argument: 123}
+  # pb.partial! @model # @model is an ActiveModel value, it will use the name to look up a partial
+  # pb.friends @friends, partial: "friend", as: :friend # Render a collection by using a partial for each element
   def partial!(*args)
     if args.one? && _is_active_model?(args.first)
       _render_active_model_partial args.first
