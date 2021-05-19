@@ -27,12 +27,20 @@ class PbbuilderTemplate < Pbbuilder
   end
 
   def set!(field, *args, **kwargs, &block)
-    # If partial options are being passed, we assume a collection is being rendered with a partial for every element
-    # pb.friends @friends, partial: "friend", as: :friend
-    if args.one? && _partial_options?(kwargs)
-      # Call set! on the super class, passing in a block that renders a partial for every element
-      super(field, *args) do |element|
-        _set_inline_partial(element, kwargs)
+    # If partial options are being passed, we render a submessage with a partial
+    if kwargs.has_key?(:partial)
+      if args.one? && kwargs.has_key?(:as)
+        # pb.friends @friends, partial: "friend", as: :friend
+        # Call set! on the super class, passing in a block that renders a partial for every element
+        super(field, *args) do |element|
+          _set_inline_partial(element, kwargs)
+        end
+      else
+        # pb.best_friend partial: "person", person: @best_friend
+        # Call set! as a submessage, passing in the kwargs as partial options
+        super(field, *args) do
+          _render_partial_with_options(kwargs)
+        end
       end
     else
       super
@@ -40,10 +48,6 @@ class PbbuilderTemplate < Pbbuilder
   end
 
   private
-
-  def _partial_options?(options)
-    ::Hash === options && options.key?(:as) && options.key?(:partial)
-  end
 
   def _is_active_model?(object)
     object.class.respond_to?(:model_name) && object.respond_to?(:to_partial_path)
