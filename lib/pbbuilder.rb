@@ -28,8 +28,8 @@ class Pbbuilder < BasicObject
     yield self if ::Kernel.block_given?
   end
 
-  def method_missing(field, *args, &block)
-    set!(field, *args, &block)
+  def method_missing(...)
+    set!(...)
   end
 
   def respond_to_missing?(field)
@@ -39,19 +39,20 @@ class Pbbuilder < BasicObject
   def set!(field, *args, &block)
     name = field.to_s
     descriptor = @message.class.descriptor.lookup(name)
+    ::Kernel.raise ::ArgumentError, "Unknown field #{name}" if descriptor.nil?
 
     if block
-      raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
+      ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
       if descriptor.label == :repeated
         # pb.field @array { |element| pb.name element.name }
-        raise ::ArgumentError, "wrong number of arguments (expected 1)" unless args.length == 1
+        ::Kernel.raise ::ArgumentError, "wrong number of arguments #{args.length} (expected 1)" unless args.length == 1
         collection = args.first
         _append_repeated(name, descriptor, collection, &block)
         return
       end
 
-      raise ::ArgumentError, "wrong number of arguments (expected 0)" unless args.empty?
+      ::Kernel.raise ::ArgumentError, "wrong number of arguments (expected 0)" unless args.empty?
       # pb.field { pb.name "hello" }
       message = (@message[name] ||= _new_message_from_descriptor(descriptor))
       _scope(message, &block)
@@ -107,7 +108,7 @@ class Pbbuilder < BasicObject
   private
 
   def _append_repeated(name, descriptor, collection, &block)
-    raise ::ArgumentError, "expected Enumerable" unless collection.respond_to?(:map)
+    ::Kernel.raise ::ArgumentError, "expected Enumerable" unless collection.respond_to?(:map)
     elements = collection.map do |element|
       message = _new_message_from_descriptor(descriptor)
       _scope(message) { block.call(element) }
@@ -126,7 +127,7 @@ class Pbbuilder < BasicObject
   end
 
   def _new_message_from_descriptor(descriptor)
-    raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
+    ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
     # Here we're using Protobuf reflection to create an instance of the message class
     message_descriptor = descriptor.subtype

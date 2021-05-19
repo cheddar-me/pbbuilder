@@ -4,6 +4,15 @@ ENV["RAILS_ENV"] = "test"
 require "rails"
 require "rails/test_help"
 require "rails/test_unit/reporter"
+
+require "active_support"
+require "active_support/core_ext/array/access"
+require "active_support/cache/memory_store"
+require "active_support/json"
+require "active_model"
+require "action_view"
+require "rails/version"
+
 require "pbbuilder"
 
 Rails::TestUnitReporter.executable = "bin/test"
@@ -27,3 +36,10 @@ end
 module API
   Person = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Person").msgclass
 end
+
+class Racer < Struct.new(:id, :name, :friends, :best_friend)
+  extend ActiveModel::Naming
+  include ActiveModel::Conversion
+end
+
+ActionView::Template.register_template_handler :pbbuilder, PbbuilderHandler
