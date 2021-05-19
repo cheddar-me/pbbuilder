@@ -8,7 +8,7 @@ class PbbuilderHandler
   def self.call(template, source = nil)
     source ||= template.source
     # We need to keep `source` on the first line, so line numbers are correct if there's an error
-    %{__already_defined = defined?(pb); pb||=PbbuilderTemplate.new(self, @_response_class.new); #{source}
+    %{__already_defined = defined?(pb); pb ||= PbbuilderTemplate.new(self, @_response_class.new); #{source}
       pb.target! unless (__already_defined && __already_defined != "method")}
   end
 end
