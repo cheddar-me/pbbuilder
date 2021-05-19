@@ -18,7 +18,6 @@ class PbbuilderTemplate < Pbbuilder
   # pb.partial! partial: "name/of_partial", argument: 123
   # pb.partial! partial: "name/of_partial", locals: {argument: 123}
   # pb.partial! @model # @model is an ActiveModel value, it will use the name to look up a partial
-  # pb.friends @friends, partial: "friend", as: :friend # Render a collection by using a partial for each element
   def partial!(*args)
     if args.one? && _is_active_model?(args.first)
       _render_active_model_partial args.first
@@ -28,7 +27,10 @@ class PbbuilderTemplate < Pbbuilder
   end
 
   def set!(field, *args, **kwargs, &block)
+    # If partial options are being passed, we assume a collection is being rendered with a partial for every element
+    # pb.friends @friends, partial: "friend", as: :friend
     if args.one? && _partial_options?(kwargs)
+      # Call set! on the super class, passing in a block that renders a partial for every element
       super(field, *args) do |element|
         _set_inline_partial(element, kwargs)
       end
