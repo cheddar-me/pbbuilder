@@ -9,9 +9,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   RACER_PARTIAL = <<-PBBUILDER
     pb.extract! racer, :name
     pb.friends racer.friends, partial: "racers/racer", as: :racer
-    pb.best_friend do
-      pb.partial! "racers/racer", racer: racer.best_friend
-    end if racer.best_friend.present?
+    pb.best_friend partial: "racers/racer", racer: racer.best_friend if racer.best_friend.present?
   PBBUILDER
 
   PARTIALS = {
@@ -31,6 +29,18 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   test "partial by name with top-level locals" do
     result = render('pb.partial! "partial", name: "hello"')
     assert_equal "hello", result.name
+  end
+
+  test "submessage partial" do
+    other_racer = Racer.new(2, "Max Verstappen", [])
+    racer = Racer.new(123, "Chris Harris", [], other_racer)
+    result = render('pb.best_friend partial: "person", person: @racer.best_friend', racer: racer)
+    assert_equal "Max Verstappen", result.best_friend.name
+  end
+
+  test "hash" do
+    result = render('pb.favourite_foods "pizza" => "yes"')
+    assert_equal({"pizza" => "yes"}, result.favourite_foods.to_h)
   end
 
   test "partial by name with nested locals" do
