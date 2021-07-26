@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = "pbbuilder"
-  spec.version = "0.8.0"
+  spec.version = "0.9.0"
   spec.authors = ["Bouke van der Bijl"]
   spec.email = ["bouke@cheddar.me"]
   spec.homepage = "https://github.com/cheddar-me/pbbuilder"
@@ -10,5 +10,5 @@ Gem::Specification.new do |spec|
   spec.files = `git ls-files`.split("\n")
   spec.test_files = `git ls-files -- test/*`.split("\n")
 
-  spec.add_dependency "google-protobuf", "~> 3.15.5"
+  spec.add_dependency "google-protobuf", "~> 3.17.3"
 end
