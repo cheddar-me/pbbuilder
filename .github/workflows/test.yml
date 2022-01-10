@@ -19,4 +19,7 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
 
       - name: Run tests
+        run: bin/appraisal install
+
+      - name: Run tests
         run: bin/test

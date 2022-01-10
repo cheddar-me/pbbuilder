@@ -6,10 +6,7 @@ require 'appraisal'
 require 'appraisal/cli'
 
 begin
-   cmd =  ["rake"] + ARGV
-   Appraisal::AppraisalFile.each do |appraisal|
-     Appraisal::Command.new(cmd, :gemfile => appraisal.gemfile_path).run
-   end
+  Appraisal::CLI.start(ARGV)
 rescue Appraisal::AppraisalsNotFound => e
   puts e.message
   exit 127

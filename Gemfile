@@ -5,3 +5,4 @@ gemspec
 
 gem "rake"
 gem "rails"
+gem "appraisal"
