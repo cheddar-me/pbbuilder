@@ -42,4 +42,5 @@ class Racer < Struct.new(:id, :name, :friends, :best_friend)
   include ActiveModel::Conversion
 end
 
+Mime::Type.register "application/vnd.google.protobuf", :pb, [], %w(pb)
 ActionView::Template.register_template_handler :pbbuilder, PbbuilderHandler
