@@ -10,5 +10,5 @@ Gem::Specification.new do |spec|
   spec.files = `git ls-files`.split("\n")
   spec.test_files = `git ls-files -- test/*`.split("\n")
 
-  spec.add_dependency "google-protobuf", "~> 3.17.3"
+  spec.add_dependency "google-protobuf", ">= 3.19.2"
 end
