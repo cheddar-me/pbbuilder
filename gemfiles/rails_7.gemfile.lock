@@ -1,8 +1,8 @@
 PATH
   remote: ..
   specs:
-    pbbuilder (0.10.0)
-      google-protobuf (>= 3.19.2)
+    pbbuilder (0.11.0)
+      google-protobuf (~> 3.19, >= 3.19.2)
 
 GEM
   remote: https://rubygems.org/
