@@ -26,6 +26,48 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
+  # TODO: rewrite comment from JBuilder into PBuilder
+  #
+  # Caches the json constructed within the block passed. Has the same signature as the `cache` helper
+  # method in `ActionView::Helpers::CacheHelper` and so can be used in the same way.
+  #
+  # Example:
+  #
+  #   json.cache! ['v1', @person], expires_in: 10.minutes do
+  #     json.extract! @person, :name, :age
+  #   end
+  def cache!(key=nil, options={})
+    # ::Kernel.binding.pry
+    if @context.controller.perform_caching
+      _cache_fragment_for(key, options) do
+        yield self
+      end
+      # # Original below
+      # value = _cache_fragment_for(key, options) do
+      #   yield self
+      # end
+
+      # value
+    else
+      yield
+    end
+  end
+
+  # TODO: rewrite comment from JBuilder into PBuilder
+  #
+  # Conditionally caches the json depending in the condition given as first parameter. Has the same
+  # signature as the `cache` helper method in `ActionView::Helpers::CacheHelper` and so can be used in
+  # the same way.
+  #
+  # Example:
+  #
+  #   json.cache_if! !admin?, @person, expires_in: 10.minutes do
+  #     json.extract! @person, :name, :age
+  #   end
+  def cache_if!(condition, *args, &block)
+    condition ? cache!(*args, &block) : yield
+  end
+
   def set!(field, *args, **kwargs, &block)
     # If partial options are being passed, we render a submessage with a partial
     if kwargs.has_key?(:partial)
@@ -84,7 +126,7 @@ class PbbuilderTemplate < Pbbuilder
   end
 
   def _render_partial_with_options(options)
-    options.reverse_merge! locals: options.except(:partial, :as, :collection)
+    options.reverse_merge! locals: options.except(:partial, :as, :collection, :cached)
     options.reverse_merge! ::PbbuilderTemplate.template_lookup_options
 
     _render_partial options
@@ -93,5 +135,60 @@ class PbbuilderTemplate < Pbbuilder
   def _render_partial(options)
     options[:locals][:pb] = self
     @context.render options
+  rescue => e
+    ::Kernel.binding.pry
+  end
+
+  def _cache_fragment_for(key, options, &block)
+    # ::Kernel.binding.pry
+    key = _cache_key(key, options)
+
+    _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
+  end
+
+  def _read_fragment_cache(key, options = nil)
+    @context.controller.instrument_fragment_cache :read_fragment, key do
+      if (cached_entry = ::Rails.cache.read(key, options))
+        ::Kernel.puts "hit : #{key}"
+        rpc_class, value = cached_entry.values_at(:rpc_class, :value)
+
+        rpc_class.decode(value)
+      end
+    end
+  end
+
+  def _write_fragment_cache(key, options = nil)
+    @context.controller.instrument_fragment_cache :write_fragment, key do
+      yield.tap do |value|
+        # don't cache `nil`` values, since _cache_fragment_for will call
+        # _write_fragment_cache if _read_fragment_cache returns a falsy value
+        break if value.nil?
+
+        encoded = { rpc_class: value.class, value: value.class.encode(value) }
+        ::Rails.cache.write(key, encoded, options)
+      end
+    end
+  end
+
+
+  def _cache_key(key, options)
+    name_options = options.slice(:skip_digest, :virtual_path)
+    key = _fragment_name_with_digest(key, name_options)
+
+    if @context.respond_to?(:combined_fragment_cache_key)
+      key = @context.combined_fragment_cache_key(key)
+    else
+      key = url_for(key).split('://', 2).last if ::Hash === key
+    end
+
+    ::ActiveSupport::Cache.expand_cache_key(key, :pbbuilder)
+  end
+
+  def _fragment_name_with_digest(key, options)
+    if @context.respond_to?(:cache_fragment_name)
+      @context.cache_fragment_name(key, **options)
+    else
+      key
+    end
   end
 end

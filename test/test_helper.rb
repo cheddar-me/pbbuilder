@@ -14,6 +14,7 @@ require "action_view"
 require "rails/version"
 
 require "pbbuilder"
+require "pry"
 
 Rails::TestUnitReporter.executable = "bin/test"
 
