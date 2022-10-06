@@ -22,16 +22,10 @@
 # of protobuf message it needs to create.
 
 class Pbbuilder < BasicObject
-  attr_reader :message
-
   def initialize(message)
     @message = message
 
     yield self if ::Kernel.block_given?
-  end
-
-  def inspect
-    "#<PbbuilderTemplate:#{__id__}, #{message.inspect}"
   end
 
   def method_missing(...)

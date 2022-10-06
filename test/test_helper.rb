@@ -14,6 +14,7 @@ require "action_view"
 require "rails/version"
 
 require "pbbuilder"
+require "pry"
 
 Rails::TestUnitReporter.executable = "bin/test"
 
@@ -40,6 +41,10 @@ end
 class Racer < Struct.new(:id, :name, :friends, :best_friend)
   extend ActiveModel::Naming
   include ActiveModel::Conversion
+
+  def cache_key
+    hash
+  end
 end
 
 Mime::Type.register "application/vnd.google.protobuf", :pb, [], %w(pb)
