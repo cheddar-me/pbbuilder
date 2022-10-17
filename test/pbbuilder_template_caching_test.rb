@@ -37,11 +37,7 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
 
   private
 
-  def render(*args)
-    render_without_parsing(*args)
-  end
-
-  def render_without_parsing(source, assigns = {})
+  def render(source, assigns = {})
     view = build_view(fixtures: PARTIALS.merge("source.pb.pbbuilder" => source), assigns: assigns)
     view.render(template: "source", handlers: [:pbbuilder], formats: [:pb])
   end
