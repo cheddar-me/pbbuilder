@@ -15,9 +15,6 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
   }
 
   setup do
-#    ActiveSupport::Notifications.subscribe do |name, start, finish, id, payload|
-#      puts "name: #{name}", "start: #{start}", "finish: #{finish}", "id: #{id}payload: ", "#{payload}"
-#    end
     Rails.cache = ::ActiveSupport::Cache::MemoryStore.new
   end
 
@@ -26,14 +23,13 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
     best_friend = Racer.new(2, "Stimpy", [])
     racer = Racer.new(3, "Ren", [a_friend, best_friend, a_friend], best_friend)
 
-    first_result = render('pb.partial! @racer', racer: racer)
-    cached_result = render('pb.partial! @racer', racer: racer)
+    fresh_result = render("pb.partial! @racer", racer: racer)
 
-    assert_kind_of API::Person, first_result 
-    assert_kind_of API::Person, cached_result
+    assert_kind_of API::Person, fresh_result
+    assert_equal "Ren", fresh_result.name
 
-    assert_equal "Ren", first_result.name
-    assert_equal "Ren", cached_result.name
+    cached_result = render("pb.partial! @racer", racer: racer)
+    assert_equal fresh_result, cached_result
   end
 
   # What follows is a verbatim copy of test/pbbuilder_template_test.rb

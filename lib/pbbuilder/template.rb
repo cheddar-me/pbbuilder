@@ -37,10 +37,15 @@ class PbbuilderTemplate < Pbbuilder
   #   end
   #
   def cache!(key=nil, options={})
-    _cache_fragment_for(key, options) do
-      yield self
+    if @context.controller.perform_caching
+      _cache_fragment_for(key, options) do
+        yield self
+      end
+    else
+      yield
     end
-    # The return value of this method does not matter
+    # The return value of this method does not matter, as @message gets updated
+    # with the rendered result
   end
 
   # Conditionally caches the pb depending in the condition given as first
@@ -125,8 +130,6 @@ class PbbuilderTemplate < Pbbuilder
   def _render_partial(options)
     options[:locals][:pb] = self
     @context.render(options)
-#  rescue => e
-#    ::Kernel.binding.pry
   end
 
   # Reading the cached value from, or writing the result of yielding to
@@ -138,6 +141,7 @@ class PbbuilderTemplate < Pbbuilder
   # @param [<Hash>] options cache options that will be passed to the underlying
   #           cache.
   # @return [void]
+  #
   def _cache_fragment_for(keyable, options, &block)
     key = _cache_key(keyable, options)
     _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
@@ -147,7 +151,6 @@ class PbbuilderTemplate < Pbbuilder
   def _read_fragment_cache(key, options = nil)
     @context.controller.instrument_fragment_cache :read_fragment, key do
       if (cached_entry = ::Rails.cache.read(key, options))
-        ::Kernel.warn "reading fragment cache"
         rpc_class, value = cached_entry.values_at(:rpc_class, :value)
         @message = rpc_class.decode(value)
       end
@@ -155,17 +158,15 @@ class PbbuilderTemplate < Pbbuilder
   end
 
   def _write_fragment_cache(key, options = nil)
-    @context.controller.instrument_fragment_cache :write_fragment, key do
-      yield.tap do
-        ::Kernel.warn "writing fragment cache"
-        # ::Kernel.binding.pry
-        # don't cache `nil`` values, since _cache_fragment_for will call
-        # _write_fragment_cache if _read_fragment_cache returns a falsy value
-        break if @message.nil?
+    @context.controller.instrument_fragment_cache(:write_fragment, key) do
+      yield
 
-        encoded = { rpc_class: @message.class, value: @message.class.encode(@message) }
-        ::Rails.cache.write(key, encoded, options)
-      end
+      # don't cache `nil` values, since _cache_fragment_for will call
+      # _write_fragment_cache if _read_fragment_cache returns a falsy value
+      return if @message.nil?
+
+      encoded = { rpc_class: @message.class, value: @message.class.encode(@message) }
+      ::Rails.cache.write(key, encoded, options)
     end
   end
 
