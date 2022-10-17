@@ -15,9 +15,9 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
   }
 
   setup do
-    ActiveSupport::Notifications.subscribe do |name, start, finish, id, payload|
-      puts "name: #{name}", "start: #{start}", "finish: #{finish}", "id: #{id}payload: ", "#{payload}"
-    end
+#    ActiveSupport::Notifications.subscribe do |name, start, finish, id, payload|
+#      puts "name: #{name}", "start: #{start}", "finish: #{finish}", "id: #{id}payload: ", "#{payload}"
+#    end
     Rails.cache = ::ActiveSupport::Cache::MemoryStore.new
   end
 
