@@ -6,6 +6,17 @@ Note: This library uses semantic versioning.
 
 ## Unreleased
 
+Added:
+
+- Caching like Rails' ActionView does. Example:
+
+```ruby
+pb.cache! @person, expires_in: 10.minutes do
+  pb.name @person.name
+  pb.high_score @person.expensive_high_score_calculation
+end
+```
+
 Changed:
 
 - Ruby upgrade: From 3.1.0 to 3.1.2 for the lib itself. The Rubies in test matrix are upgraded to their latest point

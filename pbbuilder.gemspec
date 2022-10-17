@@ -1,7 +1,7 @@
 Gem::Specification.new do |spec|
   spec.name = "pbbuilder"
   spec.version = "0.12.0"
-  spec.authors = ["Bouke van der Bijl", "Arno Fleming"]
+  spec.authors = ["Bouke van der Bijl", "Arno Fleming", "Julik Tarkhanov"]
   spec.email = ["bouke@cheddar.me"]
   spec.homepage = "https://github.com/cheddar-me/pbbuilder"
   spec.summary = "Generate Protobuf messages via a Builder-style DSL"
