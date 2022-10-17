@@ -137,38 +137,33 @@ class PbbuilderTemplate < Pbbuilder
   #           the cache key on.
   # @param [<Hash>] options cache options that will be passed to the underlying
   #           cache.
-  # @return [String] The value that is now stored in cache, or read from cache.
-  #
+  # @return [void]
   def _cache_fragment_for(keyable, options, &block)
-#   ::Kernel.binding.pry
     key = _cache_key(keyable, options)
-
     _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
     # The return value of this method does not matter
   end
 
   def _read_fragment_cache(key, options = nil)
-    
     @context.controller.instrument_fragment_cache :read_fragment, key do
       if (cached_entry = ::Rails.cache.read(key, options))
         ::Kernel.warn "reading fragment cache"
         rpc_class, value = cached_entry.values_at(:rpc_class, :value)
-
-        rpc_class.decode(value)
+        @message = rpc_class.decode(value)
       end
     end
   end
 
   def _write_fragment_cache(key, options = nil)
     @context.controller.instrument_fragment_cache :write_fragment, key do
-      ::Kernel.warn "writing fragment cache"
       yield.tap do
-        ::Kernel.binding.pry
+        ::Kernel.warn "writing fragment cache"
+        # ::Kernel.binding.pry
         # don't cache `nil`` values, since _cache_fragment_for will call
         # _write_fragment_cache if _read_fragment_cache returns a falsy value
-        break if value.nil?
+        break if @message.nil?
 
-        encoded = { rpc_class: value.class, value: value.class.encode(value) }
+        encoded = { rpc_class: @message.class, value: @message.class.encode(@message) }
         ::Rails.cache.write(key, encoded, options)
       end
     end
