@@ -27,10 +27,13 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
     racer = Racer.new(3, "Ren", [a_friend, best_friend, a_friend], best_friend)
 
     first_result = render('pb.partial! @racer', racer: racer)
-
     cached_result = render('pb.partial! @racer', racer: racer)
 
-    assert_equal first_result, cached_result
+    assert_kind_of API::Person, first_result 
+    assert_kind_of API::Person, cached_result
+
+    assert_equal "Ren", first_result.name
+    assert_equal "Ren", cached_result.name
   end
 
   # What follows is a verbatim copy of test/pbbuilder_template_test.rb
