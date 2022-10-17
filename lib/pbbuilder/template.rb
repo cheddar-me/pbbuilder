@@ -37,14 +37,10 @@ class PbbuilderTemplate < Pbbuilder
   #   end
   #
   def cache!(key=nil, options={})
-    if @context.controller.perform_caching
-      _cache_fragment_for(key, options) do
-        yield self
-      end
-
-    else
-      yield
+    _cache_fragment_for(key, options) do
+      yield self
     end
+    # The return value of this method does not matter
   end
 
   # Conditionally caches the pb depending in the condition given as first
@@ -129,8 +125,8 @@ class PbbuilderTemplate < Pbbuilder
   def _render_partial(options)
     options[:locals][:pb] = self
     @context.render(options)
-  rescue => e
-    ::Kernel.binding.pry
+#  rescue => e
+#    ::Kernel.binding.pry
   end
 
   # Reading the cached value from, or writing the result of yielding to
@@ -144,15 +140,18 @@ class PbbuilderTemplate < Pbbuilder
   # @return [String] The value that is now stored in cache, or read from cache.
   #
   def _cache_fragment_for(keyable, options, &block)
-    ::Kernel.binding.pry
+#   ::Kernel.binding.pry
     key = _cache_key(keyable, options)
 
     _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
+    # The return value of this method does not matter
   end
 
   def _read_fragment_cache(key, options = nil)
+    
     @context.controller.instrument_fragment_cache :read_fragment, key do
       if (cached_entry = ::Rails.cache.read(key, options))
+        ::Kernel.warn "reading fragment cache"
         rpc_class, value = cached_entry.values_at(:rpc_class, :value)
 
         rpc_class.decode(value)
@@ -162,8 +161,9 @@ class PbbuilderTemplate < Pbbuilder
 
   def _write_fragment_cache(key, options = nil)
     @context.controller.instrument_fragment_cache :write_fragment, key do
-      ::Kernel.puts "miss for #{key}"
-      yield.tap do |value|
+      ::Kernel.warn "writing fragment cache"
+      yield.tap do
+        ::Kernel.binding.pry
         # don't cache `nil`` values, since _cache_fragment_for will call
         # _write_fragment_cache if _read_fragment_cache returns a falsy value
         break if value.nil?
