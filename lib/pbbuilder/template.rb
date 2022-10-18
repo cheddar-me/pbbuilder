@@ -160,7 +160,6 @@ class PbbuilderTemplate < Pbbuilder
   def _write_fragment_cache(key, options = nil)
     @context.controller.instrument_fragment_cache(:write_fragment, key) do
       yield
-
       # don't cache `nil` values, since _cache_fragment_for will call
       # _write_fragment_cache if _read_fragment_cache returns a falsy value
       return if @message.nil?
@@ -170,9 +169,9 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
-  def _cache_key(key, options)
+  def _cache_key(keyable, options)
     name_options = options.slice(:skip_digest, :virtual_path)
-    key = _fragment_name_with_digest(key, name_options)
+    key = _fragment_name_with_digest(keyable, name_options)
 
     if @context.respond_to?(:combined_fragment_cache_key)
       key = @context.combined_fragment_cache_key(key)
@@ -183,11 +182,11 @@ class PbbuilderTemplate < Pbbuilder
     ::ActiveSupport::Cache.expand_cache_key(key, :pbbuilder)
   end
 
-  def _fragment_name_with_digest(key, options)
+  def _fragment_name_with_digest(keyable, options)
     if @context.respond_to?(:cache_fragment_name)
-      @context.cache_fragment_name(key, **options)
+      @context.cache_fragment_name(keyable, **options)
     else
-      key
+      keyable
     end
   end
 end

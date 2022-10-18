@@ -43,7 +43,7 @@ class Racer < Struct.new(:id, :name, :friends, :best_friend)
   include ActiveModel::Conversion
 
   def cache_key
-    hash
+    [self.class.name, hash].join('-')
   end
 end
 

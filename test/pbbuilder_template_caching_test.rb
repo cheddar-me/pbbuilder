@@ -10,12 +10,23 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
     end
   PBBUILDER
 
+  NESTED_CACHE_PARTIAL = <<-PBBUILDER
+    pb.cache!(racer) do
+      pb.name racer.name
+      pb.best_friend partial: "racers/nested", racer: racer.best_friend, cached: true if racer.best_friend
+    end
+  PBBUILDER
+
   PARTIALS = {
     "racers/_racer.pb.pbbuilder" => RACER_PARTIAL,
+    "racers/_nested.pb.pbbuilder" => NESTED_CACHE_PARTIAL
   }
 
   setup do
     Rails.cache = ::ActiveSupport::Cache::MemoryStore.new
+    ActiveSupport::Notifications.subscribe(/^cache_/) do |name, start, finish, id, payload|
+      puts "name: #{name}", "start: #{start}", "finish: #{finish}", "id: #{id}", "payload: #{payload}"
+    end
   end
 
   test "Caching of templates and ActiveRecord like objects" do
@@ -29,6 +40,29 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
     assert_equal "Ren", fresh_result.name
 
     cached_result = render("pb.partial! @racer", racer: racer)
+    assert_equal fresh_result, cached_result
+  end
+
+  test "Russian doll caching (of nested messages) in a partial" do
+    asthmahound_chihuahua = Racer.new(1, "Asthmahound Chihuahua")
+    stimpy = Racer.new(2, "Stimpy", [], asthmahound_chihuahua)
+    ren = Racer.new(3, "Ren", [], stimpy)
+    fresh_result = render("pb.best_friend partial: 'racers/nested', racer: @racer", racer: ren)
+
+    first_friend = fresh_result.best_friend
+    best_friend = fresh_result.best_friend.best_friend
+    bestest_friend = fresh_result.best_friend.best_friend.best_friend
+
+    assert_kind_of API::Person, first_friend
+    assert_kind_of API::Person, best_friend
+    assert_kind_of API::Person, bestest_friend
+
+    assert_equal "Ren", first_friend.name
+    assert_equal "Stimpy", best_friend.name
+    assert_equal "Asthmahound Chihuahua", bestest_friend.name
+
+    cached_result = render("pb.best_friend partial: 'racers/nested', racer: @racer", racer: ren)
+
     assert_equal fresh_result, cached_result
   end
 

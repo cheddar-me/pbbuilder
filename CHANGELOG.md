@@ -8,12 +8,24 @@ Note: This library uses semantic versioning.
 
 Added:
 
-- Caching like Rails' ActionView does. Example:
+- Caching like Rails' ActionView does.
+
+Caching can be utilized with `pb.cache!`, giving it a block that will be executed with a cache miss:
 
 ```ruby
 pb.cache! @person, expires_in: 10.minutes do
   pb.name @person.name
   pb.high_score @person.expensive_high_score_calculation
+end
+```
+
+But caching can also be utilized on nested messages, setting the keyword argument `cached: true`
+
+```ruby
+# Nested messages can also be cached
+pb.cache! @person do
+  pb.name @person.name
+  pb.best_friend partial: "racers/racer", racer: @racer.best_friend, cached: true
 end
 ```
 
