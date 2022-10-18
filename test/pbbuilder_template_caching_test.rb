@@ -49,20 +49,20 @@ class PbbuilderTemplateCachingTest < ActiveSupport::TestCase
     ren = Racer.new(3, "Ren", [], stimpy)
     fresh_result = render("pb.best_friend partial: 'racers/nested', racer: @racer", racer: ren)
 
-    first_friend = fresh_result.best_friend
-    best_friend = fresh_result.best_friend.best_friend
-    bestest_friend = fresh_result.best_friend.best_friend.best_friend
+    # first_friend = fresh_result.best_friend
+    # best_friend = fresh_result.best_friend.best_friend
+    # bestest_friend = fresh_result.best_friend.best_friend.best_friend
 
-    assert_kind_of API::Person, first_friend
-    assert_kind_of API::Person, best_friend
-    assert_kind_of API::Person, bestest_friend
+    # assert_kind_of API::Person, first_friend
+    # assert_kind_of API::Person, best_friend
+    # assert_kind_of API::Person, bestest_friend
 
-    assert_equal "Ren", first_friend.name
-    assert_equal "Stimpy", best_friend.name
-    assert_equal "Asthmahound Chihuahua", bestest_friend.name
+    # assert_equal "Ren", first_friend.name
+    # assert_equal "Stimpy", best_friend.name
+    # assert_equal "Asthmahound Chihuahua", bestest_friend.name
 
+    binding.pry
     cached_result = render("pb.best_friend partial: 'racers/nested', racer: @racer", racer: ren)
-
     assert_equal fresh_result, cached_result
   end
 

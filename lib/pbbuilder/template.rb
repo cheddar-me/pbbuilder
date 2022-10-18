@@ -144,6 +144,8 @@ class PbbuilderTemplate < Pbbuilder
   #
   def _cache_fragment_for(keyable, options, &block)
     key = _cache_key(keyable, options)
+
+    # ::Kernel.binding.pry
     _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
     # The return value of this method does not matter
   end
@@ -155,6 +157,7 @@ class PbbuilderTemplate < Pbbuilder
         @message = rpc_class.decode(value)
       end
     end
+    # @message
   end
 
   def _write_fragment_cache(key, options = nil)
