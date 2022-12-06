@@ -1,8 +1,30 @@
 # Pbbuilder
-Short description and motivation.
+PBBuilder provides a simple DSL for creating [Protobuf](https://developers.google.com/protocol-buffers) messages, it's heavily inspired by [jbuilder](https://rubygems.org/gems/jbuilder) gem.
 
 ## Usage
-How to use my plugin.
+It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
+
+
+Following Pbbuilder code
+```
+person = RPC::Person.new
+ Pbbuilder.new(person) do |pb|
+   pb.name "Hello"
+   pb.friends [1, 2, 3] do |number|
+     pb.name "Friend ##{number}"
+   end
+ end
+```
+Would produce this message:
+
+```
+message Person {
+  string name = 1;
+  repeated Person friends = 2;
+}
+```
+
+Some features of Jbuilder are missing -- like caching.
 
 ## Installation
 Add this line to your application's Gemfile:
