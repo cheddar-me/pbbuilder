@@ -77,6 +77,18 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "Max Verstappen", result.best_friend.name
   end
 
+
+  test "object fragment caching" do
+    render(<<-PBBUILDER)
+      pb.cache! "cache-key" do
+        pb.name "Hit"
+      end
+    PBBUILDER
+
+    hit = render('pb.cache! "cache-key" do; end ')
+    assert_equal "Hit", hit["name"]
+  end
+
   private
 
   def render(*args)
@@ -98,9 +110,10 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
 
     view = ActionView::Base.with_empty_template_cache.new(lookup_context, assigns, controller)
 
-    def view.view_cache_dependencies
-      []
-    end
+    def view.view_cache_dependencies; []; end
+    def view.combined_fragment_cache_key(key) [ key ] end
+    def view.cache_fragment_name(key, *) key end
+    def view.fragment_name_with_digest(key) key end
 
     view
   end

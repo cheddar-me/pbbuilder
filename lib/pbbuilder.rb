@@ -1,3 +1,5 @@
+require "pbbuilder/protobuf_extension"
+
 # Pbbuilder makes it easy to create a protobuf message using the builder pattern
 # It is heavily inspired by jbuilder
 #
@@ -136,5 +138,4 @@ class Pbbuilder < BasicObject
   end
 end
 
-require "pbbuilder/protobuf_extension"
 require "pbbuilder/railtie" if defined?(Rails)

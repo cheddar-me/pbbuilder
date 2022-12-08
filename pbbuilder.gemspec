@@ -13,4 +13,5 @@ Gem::Specification.new do |spec|
   spec.test_files = `git ls-files -- test/*`.split("\n")
 
   spec.add_dependency "google-protobuf", "~> 3.19", ">= 3.19.2"
+  spec.add_dependency "activesupport", ">= 5.0.0"
 end
