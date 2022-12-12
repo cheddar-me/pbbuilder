@@ -18,8 +18,5 @@ jobs:
           bundler-cache: true
           ruby-version: ${{ matrix.ruby }}
 
-      - name: Setup Appraisal
-        run:  bundle exec appraisal install
-
       - name: Run tests
-        run: bundle exec appraisal rake
+        run: bundle exec rake
