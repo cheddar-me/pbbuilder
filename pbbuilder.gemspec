@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Generate Protobuf messages via a Builder-style DSL"
   spec.license = "MIT"
 
-  s.required_ruby_version = '>= 2.2.2'
+  spec.required_ruby_version = '>= 2.2.2'
 
   spec.files = `git ls-files`.split("\n")
   spec.test_files = `git ls-files -- test/*`.split("\n")
