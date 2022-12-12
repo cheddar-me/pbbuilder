@@ -1,9 +1,6 @@
-# Configure Rails Environment
-ENV["RAILS_ENV"] = "test"
+require "bundler/setup"
 
 require "rails"
-require "rails/test_help"
-require "rails/test_unit/reporter"
 
 require "active_support"
 require "active_support/core_ext/array/access"
@@ -11,14 +8,13 @@ require "active_support/cache/memory_store"
 require "active_support/json"
 require "active_model"
 require "action_view"
-require "rails/version"
 
 require "pbbuilder"
 
-Rails::TestUnitReporter.executable = "bin/test"
-
 require "google/protobuf"
 require "google/protobuf/field_mask_pb"
+
+ActiveSupport.test_order = :random
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("pbbuilder.proto", syntax: :proto3) do
