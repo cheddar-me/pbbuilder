@@ -31,6 +31,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   end
 end
 
+class << Rails
+  def cache
+    @cache ||= ActiveSupport::Cache::MemoryStore.new
+  end
+end
+
 module API
   Person = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Person").msgclass
 end

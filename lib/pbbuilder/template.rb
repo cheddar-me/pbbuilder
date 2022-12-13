@@ -1,4 +1,5 @@
 require "active_support/cache"
+require "rails"
 
 
 # PbbuilderTemplate is an extension of Pbbuilder to be used as a Rails template
@@ -53,7 +54,7 @@ class PbbuilderTemplate < Pbbuilder
   def cache!(key=nil, options={})
     if @context.controller.perform_caching
       value = _cache_fragment_for(key, options) do
-        _scope { yield self}
+        _scope { yield self }
       end
 
       merge! value
@@ -69,7 +70,6 @@ class PbbuilderTemplate < Pbbuilder
     _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
   end
 
-  
   def _read_fragment_cache(key, options = nil)
     @context.controller.instrument_fragment_cache :read_fragment, key do
       ::Rails.cache.read(key, options)
