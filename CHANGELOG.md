@@ -19,9 +19,6 @@ This format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Removed
 - TestUnit dependency
 
-### Added
-- Testing agains Rails HEAD branch
-
 
 ## 0.12.0 Prior to 2022-10-14
 
