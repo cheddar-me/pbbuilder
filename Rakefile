@@ -7,11 +7,12 @@ if !ENV["APPRAISAL_INITIALIZED"] && !ENV["CI"]
   Appraisal::Task.new
   task default: :appraisal
 else
-  Rake::TestTask.new(:test) do |t|
+  Rake::TestTask.new do |t|
+    require "rails/version"
+
     t.libs << "test"
-    t.pattern = "test/**/*_test.rb"
-    t.verbose = false
-    t.warning = false
+
+    t.test_files = FileList["test/*_test.rb"]
   end
 
   task default: :test

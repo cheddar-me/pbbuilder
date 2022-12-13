@@ -2,7 +2,7 @@ require "active_support/cache"
 
 
 # PbbuilderTemplate is an extension of Pbbuilder to be used as a Rails template
-# It adds support for partial s.
+# It adds support for partials.
 class PbbuilderTemplate < Pbbuilder
   class << self
     attr_accessor :template_lookup_options
@@ -71,7 +71,6 @@ class PbbuilderTemplate < Pbbuilder
 
   
   def _read_fragment_cache(key, options = nil)
-    require 'pry'; binding.pry
     @context.controller.instrument_fragment_cache :read_fragment, key do
       ::Rails.cache.read(key, options)
     end

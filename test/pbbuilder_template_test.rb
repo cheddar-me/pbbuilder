@@ -77,7 +77,6 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "Max Verstappen", result.best_friend.name
   end
 
-
   test "object fragment caching" do
     render(<<-PBBUILDER)
       pb.cache! "cache-key" do
@@ -87,6 +86,31 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
 
     hit = render('pb.cache! "cache-key" do; end ')
     assert_equal "Hit", hit["name"]
+  end
+
+  test "conditional object fragment caching" do
+    render(<<-PBBUILDER)
+      pb.cache_if! true, "cache-key" do
+        pb.a "Hit me"
+      end
+
+      pb.cache_if! false, "cache-key" do
+        pb.b "Hit me"
+      end
+    PBBUILDER
+
+    result = render(<<-PBBUILDER)
+      pb.cache_if! true, "cache-key" do
+        pb.a "Miss me"
+      end
+
+      pb.cache_if! false, "cache-key" do
+        pb.b "Miss me"
+      end
+    PBBUILDER
+
+    assert_equal "Hit me", result["a"]
+    assert_equal "Miss me", result["b"]
   end
 
   private
