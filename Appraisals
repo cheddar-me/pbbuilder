@@ -1,15 +1,11 @@
-if RUBY_VERSION >= "2.5.0"
-  appraise "rails-6-1" do
-    gem "rails", "~> 6.1.0"
-  end
+appraise "rails-6-1" do
+  gem "rails", "~> 6.1.0"
 end
 
-if RUBY_VERSION >= "2.7.0"
-  appraise "rails-7" do
-    gem "rails", "~> 7.0.0"
-  end
-  
-  appraise "rails-head" do
-    gem "rails", github: "rails/rails", branch: "main"
-  end
+appraise "rails-7" do
+  gem "rails", "~> 7.0.0"
+end
+
+appraise "rails-head" do
+  gem "rails", github: "rails/rails", branch: "main"
 end

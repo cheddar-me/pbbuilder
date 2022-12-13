@@ -1,5 +1,5 @@
 # Pbbuilder
-PBBuilder provides a simple DSL for creating [Protobuf](https://developers.google.com/protocol-buffers) messages, it's heavily inspired by [jbuilder](https://rubygems.org/gems/jbuilder) gem.
+PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
 ## Usage
 It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
