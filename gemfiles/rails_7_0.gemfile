@@ -3,7 +3,7 @@
 source "https://rubygems.org"
 
 gem "rake"
-gem "rails", "~> 7.0.0"
 gem "appraisal"
+gem "rails", "~> 7.0.0"
 
 gemspec path: "../"

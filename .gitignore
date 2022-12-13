@@ -12,3 +12,11 @@
 Gemfile.lock
 *.gem
 /.idea
+
+gemfiles/.bundle
+gemfiles/*.lock
+Gemfile.lock
+.ruby-version
+pkg
+
+
