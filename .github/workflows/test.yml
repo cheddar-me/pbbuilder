@@ -5,6 +5,7 @@ jobs:
   test:
     name: Ruby ${{ matrix.ruby }} (${{ matrix.gemfile }})
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
       BUNDLE_JOBS: 4
@@ -14,10 +15,19 @@ jobs:
       matrix:
         ruby: ["2.7", "3.0", "3.1"]
 
-        gemfile:
-          - "rails_6_1"
-          - "rails_7_0"
-          #- "rails_head"
+        gemfile: [ "rails_6_1", "rails_7_0"]
+        experimental: [false]
+
+        include:
+          - ruby: '2.7'
+            gemfile: rails_head
+            experimental: true
+          - ruby: '3.0'
+            gemfile: rails_head
+            experimental: true
+          - ruby: '3.1'
+            gemfile: rails_head
+            experimental: true
 
     steps:
       - uses: actions/checkout@v3
