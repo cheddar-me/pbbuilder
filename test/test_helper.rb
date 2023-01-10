@@ -14,6 +14,8 @@ require "pbbuilder"
 require "google/protobuf"
 require "google/protobuf/field_mask_pb"
 
+require "active_support/testing/autorun"
+
 ActiveSupport.test_order = :random
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
