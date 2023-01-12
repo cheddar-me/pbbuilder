@@ -23,7 +23,7 @@ require 'pbbuilder/errors'
 # It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind
 # of protobuf message it needs to create.
 
-class Pbbuilder < BasicObject
+class Pbbuilder
   def initialize(message)
     @message = message
 
@@ -106,6 +106,10 @@ class Pbbuilder < BasicObject
   def merge!(object)
     if object.class == ::Hash
       object.each_key do |key|
+        if object[key].empty?
+          raise MergeError.build(@message, object) 
+        end
+
         @message[key.to_s] = object[key]
       end
     else

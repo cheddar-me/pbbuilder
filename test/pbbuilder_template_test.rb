@@ -83,6 +83,31 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal("suslik", result.name)
   end
 
+  test "support for merge! method in a block" do
+    result = render(<<-PBBUILDER)
+      pb.best_friend do
+        pb.merge! "name" => "Manuelo"
+      end
+    PBBUILDER
+
+    assert_equal("Manuelo", result.best_friend.name)
+  end
+
+
+  test "should raise MergeError in merge! an empty hash" do
+    assert_raise(Pbbuilder::MergeError) {
+      render(<<-PBBUILDER)
+        pb.merge! "name" => {}
+      PBBUILDER
+    }
+
+    assert_raise(Pbbuilder::MergeError) {
+      render(<<-PBBUILDER)
+        pb.merge! "" => {}
+      PBBUILDER
+    }
+  end
+
   test "object fragment caching" do
     skip("not working yeat")
     render(<<-PBBUILDER)
