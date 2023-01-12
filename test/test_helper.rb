@@ -35,6 +35,12 @@ module API
   Person = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Person").msgclass
 end
 
+class << Rails
+  def cache
+    @cache ||= ActiveSupport::Cache::MemoryStore.new
+  end
+end
+
 class Racer < Struct.new(:id, :name, :friends, :best_friend)
   extend ActiveModel::Naming
   include ActiveModel::Conversion

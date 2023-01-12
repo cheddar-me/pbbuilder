@@ -77,6 +77,24 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "Max Verstappen", result.best_friend.name
   end
 
+  test "support for merge! method" do
+    result = render('pb.merge! "name" => "suslik"')
+
+    assert_equal("suslik", result.name)
+  end
+
+  test "object fragment caching" do
+    skip("not working yeat")
+    render(<<-PBBUILDER)
+      pb.cache! "cache-key" do
+        pb.name "Hit"
+      end
+    PBBUILDER
+
+    hit = render('pb.cache! "cache-key" do; end ')
+    assert_equal "Hit", hit["name"]
+  end
+
   private
 
   def render(*args)

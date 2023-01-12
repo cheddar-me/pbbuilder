@@ -1,3 +1,5 @@
+require 'pbbuilder/errors'
+
 # Pbbuilder makes it easy to create a protobuf message using the builder pattern
 # It is heavily inspired by jbuilder
 #
@@ -98,6 +100,16 @@ class Pbbuilder < BasicObject
     args.each do |arg|
       value = element.send(arg)
       @message[arg.to_s] = value
+    end
+  end
+
+  def merge!(object)
+    if object.class == ::Hash
+      object.each_key do |key|
+        @message[key.to_s] = object[key]
+      end
+    else
+      raise MergeError.build(@message, object)
     end
   end
 
