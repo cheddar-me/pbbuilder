@@ -47,7 +47,59 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
+  def cache!(key=nil, options={})
+    if @context.controller.perform_caching
+      value = _cache_fragment_for(key, options) do
+        _scope(target!) { yield self }.to_h.compact_blank
+      end
+
+      merge! value
+    else
+      yield
+    end
+  end
+
   private
+
+  def _cache_fragment_for(key, options, &block)
+    key = _cache_key(key, options)
+    _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
+  end
+
+  def _read_fragment_cache(key, options = nil)
+    @context.controller.instrument_fragment_cache :read_fragment, key do
+      ::Rails.cache.read(key, options)
+    end
+  end
+
+  def _write_fragment_cache(key, options = nil)
+    @context.controller.instrument_fragment_cache :_write_fragment, key do
+      yield.tap do |value|
+        ::Rails.cache.write(key, value, options)
+      end
+    end
+  end
+
+  def _cache_key(key, options)
+    name_options = options.slice(:skip_digest, :virtual_path)
+    key = _fragment_name_with_digest(key, name_options)
+
+    if @context.respond_to?(:combined_fragment_cache_key)
+      key = @context.combined_fragment_cache_key(key)
+    else
+      key = url_for(key).split('://', 2).last if ::Hash === key
+    end
+
+    ::ActiveSupport::Cache.expand_cache_key(key, :ppbuilder)
+  end
+
+  def _fragment_name_with_digest(key, options)
+    if @context.respond_to?(:cache_fragment_name)
+      @context.cache_fragment_name(key, **options)
+    else
+      key
+    end
+  end
 
   def _is_active_model?(object)
     object.class.respond_to?(:model_name) && object.respond_to?(:to_partial_path)

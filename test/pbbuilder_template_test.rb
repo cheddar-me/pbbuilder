@@ -108,7 +108,6 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "object fragment caching" do
-    skip("not working yeat")
     render(<<-PBBUILDER)
       pb.cache! "cache-key" do
         pb.name "Hit"
