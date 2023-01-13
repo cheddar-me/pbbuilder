@@ -93,15 +93,14 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal("Manuelo", result.best_friend.name)
   end
 
-
-  test "should raise MergeError in merge! an empty hash" do
-    assert_raise(Pbbuilder::MergeError) {
+  test "should raise Error in merge! an empty hash" do
+    assert_raise(ActionView::Template::Error) {
       render(<<-PBBUILDER)
         pb.merge! "name" => {}
       PBBUILDER
     }
 
-    assert_raise(Pbbuilder::MergeError) {
+    assert_raise(ActionView::Template::Error) {
       render(<<-PBBUILDER)
         pb.merge! "" => {}
       PBBUILDER
