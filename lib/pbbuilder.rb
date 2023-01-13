@@ -103,14 +103,39 @@ class Pbbuilder
     end
   end
 
+  # Merges object into a protobuf message, mainly used for 
+  #
+  # @param object [Hash]
   def merge!(object)
+    require 'pry'
+
     if object.class == ::Hash
       object.each_key do |key|
         if object[key].empty?
           ::Kernel.raise ::MergeError.build(target!, object) 
         end
 
-        @message[key.to_s] = object[key]
+        
+        if object[key].class == String
+          # pb.fields {"one" => "two"}
+          @message[key.to_s] = object[key]
+        elsif object[key].class == Array
+          # pb.tags ['test', 'ok']
+          @message[key.to_s].replace object[key]
+        elsif ( obj = object[key]).class == Hash
+          #FIXME: this could go way deeper, address that later. (with recursive merge or scoped messaging)
+          #obj.keys.each do |k|
+          #  if obj[k].respond_to?(:to_hash)
+          #    @message[key.to_s][k.to_s] = obj[k]
+          #  elsif obj[k].respond_to?(:to_ary)
+          #    @message[key.to_s][k.to_s].tap do |msg|
+                # push out existing value and merge object into it (dirty, but works)
+          #      msg.pop(msg.count)
+          #      msg.push(*obj[k])
+          #    end
+          #  end
+          # end
+        end
       end
     else
       ::Kernel.raise ::MergeError.build(target!, object)
@@ -133,6 +158,7 @@ class Pbbuilder
     @message[name].push(*elements)
   end
 
+  # Yields an Protobuf object in a scope of message and provided values.
   def _scope(message)
     old_message = @message
     @message = message

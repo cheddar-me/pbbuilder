@@ -120,6 +120,34 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "Hit", hit["name"]
   end
 
+  test "fragment caching for arrays" do
+    render <<-PBBUILDER
+      pb.cache! "cache-key" do
+        pb.tags ["ok", "cool"]
+      end
+    PBBUILDER
+
+    result = render('pb.cache! "cache-key" do; end')
+
+    assert_equal(['ok', 'cool'], result.tags)
+  end
+
+  test "optional array fragment caching" do
+    skip('not working right now')
+    
+    render <<-PBBUILDER
+      pb.cache! "cache-key" do
+        pb.field_mask do
+          pb.paths ["ok", "that's", "cool"]
+        end
+      end
+    PBBUILDER
+
+    result = render('pb.cache! "cache-key" do; end')
+
+    assert_equal(["ok", "that's", "cool"], result.field_mask.paths)
+  end
+
   test "object fragment caching with expiry" do
     travel_to Time.iso8601("2018-05-12T11:29:00-04:00")
 

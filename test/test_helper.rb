@@ -27,6 +27,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :nicknames, :string, 4
       optional :field_mask, :message, 5, "google.protobuf.FieldMask"
       map :favourite_foods, :string, :string, 6
+      repeated :tags, :string, 7
     end
   end
 end

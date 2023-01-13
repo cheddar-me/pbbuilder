@@ -14,5 +14,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "google-protobuf", "~> 3.19", ">= 3.19.2"
   spec.add_dependency "activesupport"
-  spec.add_dependency "pry"
+  spec.add_development_dependency 'm'
+  spec.add_development_dependency "pry"
 end
