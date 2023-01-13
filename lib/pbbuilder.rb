@@ -103,7 +103,7 @@ class Pbbuilder
     end
   end
 
-  # Merges object into a protobuf message, mainly used for 
+  # Merges object into a protobuf message, mainly used for caching.
   #
   # @param object [Hash]
   def merge!(object)
@@ -111,11 +111,12 @@ class Pbbuilder
 
     if object.class == ::Hash
       object.each_key do |key|
+        #FIXME: optional and empty field don't show up in @message object.
+
         if object[key].empty?
           ::Kernel.raise ::MergeError.build(target!, object) 
         end
 
-        
         if object[key].class == String
           # pb.fields {"one" => "two"}
           @message[key.to_s] = object[key]
@@ -123,18 +124,16 @@ class Pbbuilder
           # pb.tags ['test', 'ok']
           @message[key.to_s].replace object[key]
         elsif ( obj = object[key]).class == Hash
-          #FIXME: this could go way deeper, address that later. (with recursive merge or scoped messaging)
-          #obj.keys.each do |k|
-          #  if obj[k].respond_to?(:to_hash)
-          #    @message[key.to_s][k.to_s] = obj[k]
-          #  elsif obj[k].respond_to?(:to_ary)
-          #    @message[key.to_s][k.to_s].tap do |msg|
-                # push out existing value and merge object into it (dirty, but works)
-          #      msg.pop(msg.count)
-          #      msg.push(*obj[k])
-          #    end
-          #  end
+          # pb.field_name do
+          #    pb.tags ["ok", "cool"]
           # end
+          # 
+          obj.each_key do |k|
+            # pseudo-code:
+            # pick descriptor from field - @message.class.descriptor
+            # msg = _new_message_from_descriptor(descriptor)
+            # @message[key.to_s] = _scope(msg) { block.merge!(obj[k])}
+          end
         end
       end
     else
@@ -142,12 +141,19 @@ class Pbbuilder
     end
   end
 
+  # @return Protobuf::?? Binary body of message
   def target!
     @message
   end
 
   private
 
+  # Appends protobuf message with existing @message object
+  #
+  # @param name string
+  # @param descriptor ??
+  # @param collection hash
+  # @param &block
   def _append_repeated(name, descriptor, collection, &block)
     ::Kernel.raise ::ArgumentError, "expected Enumerable" unless collection.respond_to?(:map)
     elements = collection.map do |element|
@@ -159,6 +165,8 @@ class Pbbuilder
   end
 
   # Yields an Protobuf object in a scope of message and provided values.
+  #
+  # @param message Protobuf::Message::??
   def _scope(message)
     old_message = @message
     @message = message
@@ -168,6 +176,9 @@ class Pbbuilder
     @message = old_message
   end
 
+  # Build up empty protobuf message based on descriptor
+  #
+  # @param descriptor Protobuf::Descriptor::??
   def _new_message_from_descriptor(descriptor)
     ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
