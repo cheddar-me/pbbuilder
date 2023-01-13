@@ -118,6 +118,36 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "Hit", hit["name"]
   end
 
+  test "object fragment caching with expiry" do
+    travel_to Time.iso8601("2018-05-12T11:29:00-04:00")
+
+    render <<-PBBUILDER
+      pb.cache! "cache-key", expires_in: 1.minute do
+        pb.name "Hit"
+      end
+    PBBUILDER
+
+    travel 30.seconds
+
+    result = render(<<-PBBUILDER)
+      pb.cache! "cache-key", expires_in: 1.minute do
+        pb.name "Miss"
+      end
+    PBBUILDER
+
+    assert_equal "Hit", result["name"]
+
+    travel 31.seconds
+
+    result = render(<<-PBBUILDER)
+      pb.cache! "cache-key", expires_in: 1.minute do
+        pb.name "Miss"
+      end
+    PBBUILDER
+
+    assert_equal "Miss", result["name"]
+  end
+
   private
 
   def render(*args)
