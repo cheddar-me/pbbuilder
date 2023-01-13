@@ -107,13 +107,13 @@ class Pbbuilder
     if object.class == ::Hash
       object.each_key do |key|
         if object[key].empty?
-          raise MergeError.build(@message, object) 
+          ::Kernel.raise ::MergeError.build(target!, object) 
         end
 
         @message[key.to_s] = object[key]
       end
     else
-      raise MergeError.build(@message, object)
+      ::Kernel.raise ::MergeError.build(target!, object)
     end
   end
 

@@ -21,6 +21,8 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     "_person.html.erb" => "Hello world!"
   }
 
+  setup { Rails.cache.clear }
+
   test "basic template" do
     result = render('pb.name "hello"')
     assert_equal "hello", result.name
