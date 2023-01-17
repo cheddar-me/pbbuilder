@@ -1,6 +1,3 @@
-require 'pbbuilder/errors'
-require 'pry'
-
 # Pbbuilder makes it easy to create a protobuf message using the builder pattern
 # It is heavily inspired by jbuilder
 #
@@ -187,5 +184,6 @@ class Pbbuilder
   end
 end
 
+require 'pbbuilder/errors'
 require "pbbuilder/protobuf_extension"
 require "pbbuilder/railtie" if defined?(Rails)
