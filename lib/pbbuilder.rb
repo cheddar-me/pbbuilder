@@ -1,3 +1,9 @@
+require "pbbuilder/pbbuilder"
+require 'pbbuilder/errors'
+require "pbbuilder/protobuf_extension"
+require "pbbuilder/railtie" if defined?(Rails)
+
+
 # Pbbuilder makes it easy to create a protobuf message using the builder pattern
 # It is heavily inspired by jbuilder
 #
@@ -112,13 +118,13 @@ class Pbbuilder
         ::Kernel.raise ::MergeError.build(target!, object)
       end
 
-      if object[key].class == String
+      if object[key].class == ::String
         # pb.fields {"one" => "two"}
         @message[key.to_s] = object[key]
-      elsif object[key].class == Array
+      elsif object[key].class == ::Array
         # pb.tags ['test', 'ok']
         @message[key.to_s].replace object[key]
-      elsif ( obj = object[key]).class == Hash
+      elsif ( obj = object[key]).class == ::Hash
         # pb.field_name do
         #    pb.tags ["ok", "cool"]
         # end
@@ -183,7 +189,3 @@ class Pbbuilder
     message_class.new
   end
 end
-
-require 'pbbuilder/errors'
-require "pbbuilder/protobuf_extension"
-require "pbbuilder/railtie" if defined?(Rails)
