@@ -109,6 +109,21 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     }
   end
 
+  test "empty fragment caching" do
+    render 'pb.cache! "nothing" do; end'
+
+    result = nil
+
+    assert_nothing_raised do
+      result = render(<<-JBUILDER)
+        pb.name "suslik"
+        pb.cache! "nothing" do; end
+      JBUILDER
+    end
+
+    assert_equal "suslik", result["name"]
+  end
+
   test "object fragment caching" do
     render(<<-PBBUILDER)
       pb.cache! "cache-key" do

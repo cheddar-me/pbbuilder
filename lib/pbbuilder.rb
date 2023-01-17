@@ -139,7 +139,7 @@ class Pbbuilder
     end
   end
 
-  # @return Protobuf::?? Binary body of message
+  # @return Initialized message object
   def target!
     @message
   end
@@ -149,7 +149,7 @@ class Pbbuilder
   # Appends protobuf message with existing @message object
   #
   # @param name string
-  # @param descriptor ??
+  # @param descriptor Google::Protobuf::FieldDescriptor
   # @param collection hash
   # @param &block
   def _append_repeated(name, descriptor, collection, &block)
@@ -164,7 +164,7 @@ class Pbbuilder
 
   # Yields an Protobuf object in a scope of message and provided values.
   #
-  # @param message Protobuf::Message::??
+  # @param message Google::Protobuf::(field_type)
   def _scope(message)
     old_message = @message
     @message = message
@@ -176,7 +176,7 @@ class Pbbuilder
 
   # Build up empty protobuf message based on descriptor
   #
-  # @param descriptor Protobuf::Descriptor::??
+  # @param descriptor Google::Protobuf::FieldDescriptor
   def _new_message_from_descriptor(descriptor)
     ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
