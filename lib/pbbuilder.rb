@@ -1,4 +1,5 @@
 require 'pbbuilder/errors'
+require 'pry'
 
 # Pbbuilder makes it easy to create a protobuf message using the builder pattern
 # It is heavily inspired by jbuilder
@@ -107,37 +108,34 @@ class Pbbuilder
   #
   # @param object [Hash]
   def merge!(object)
-    require 'pry'
+    ::Kernel.raise ::MergeError.build(target!, object) unless object.class == ::Hash
 
-    if object.class == ::Hash
-      object.each_key do |key|
-        #FIXME: optional and empty field don't show up in @message object.
+    object.each_key do |key|
+      #FIXME: optional empty fields don't show up in @message object,
+      # we need to check that these fields are indeed defined and retrieve their type
 
-        if object[key].empty?
-          ::Kernel.raise ::MergeError.build(target!, object) 
-        end
+      if object[key].empty?
+        ::Kernel.raise ::MergeError.build(target!, object)
+      end
 
-        if object[key].class == String
-          # pb.fields {"one" => "two"}
-          @message[key.to_s] = object[key]
-        elsif object[key].class == Array
-          # pb.tags ['test', 'ok']
-          @message[key.to_s].replace object[key]
-        elsif ( obj = object[key]).class == Hash
-          # pb.field_name do
-          #    pb.tags ["ok", "cool"]
-          # end
-          # 
-          obj.each_key do |k|
-            # pseudo-code:
-            # pick descriptor from field - @message.class.descriptor
-            # msg = _new_message_from_descriptor(descriptor)
-            # @message[key.to_s] = _scope(msg) { block.merge!(obj[k])}
-          end
+      if object[key].class == String
+        # pb.fields {"one" => "two"}
+        @message[key.to_s] = object[key]
+      elsif object[key].class == Array
+        # pb.tags ['test', 'ok']
+        @message[key.to_s].replace object[key]
+      elsif ( obj = object[key]).class == Hash
+        # pb.field_name do
+        #    pb.tags ["ok", "cool"]
+        # end
+        #
+        obj.each_key do |k|
+          # pseudo-code:
+          # pick descriptor from field - @message.class.descriptor
+          # msg = _new_message_from_descriptor(descriptor)
+          # @message[key.to_s] = _scope(msg) { block.merge!(obj[k])}
         end
       end
-    else
-      ::Kernel.raise ::MergeError.build(target!, object)
     end
   end
 
