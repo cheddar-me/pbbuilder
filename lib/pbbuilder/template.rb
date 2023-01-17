@@ -67,6 +67,19 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
+  # Conditionally caches the protobuf message depending on the condition given as first parameter. Has the same
+  # signature as the `cache` helper method in `ActionView::Helpers::CacheHelper` and so can be used in
+  # the same way.
+  #
+  # Example:
+  #
+  #   pb.cache_if! !admin?, @person, expires_in: 10.minutes do
+  #     pb.extract! @person, :name, :age
+  #   end
+  def cache_if!(condition, *args, &block)
+    condition ? cache!(*args, &block) : yield
+  end
+
   private
 
   # Writes to cache, if cache with keys is missing.

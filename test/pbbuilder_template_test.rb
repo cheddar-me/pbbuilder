@@ -191,6 +191,31 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "Miss", result["name"]
   end
 
+  test "conditional object fragment caching" do
+    render(<<-JBUILDER)
+      pb.cache_if! true, "cache-key" do
+        pb.name "Hit"
+      end
+
+      pb.cache_if! false, "cache-key" do
+        pb.last_name "Hit"
+      end
+    JBUILDER
+
+    result = render(<<-JBUILDER)
+      pb.cache_if! true, "cache-key" do
+        pb.name "Miss"
+      end
+
+      pb.cache_if! false, "cache-key" do
+        pb.last_name "Miss"
+      end
+    JBUILDER
+
+    assert_equal "Hit", result["name"]
+    assert_equal "Miss", result["last_name"]
+  end
+
   private
 
   def render(*args)
