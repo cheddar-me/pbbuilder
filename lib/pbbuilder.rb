@@ -111,9 +111,6 @@ class Pbbuilder
     ::Kernel.raise ::MergeError.build(target!, object) unless object.class == ::Hash
 
     object.each_key do |key|
-      #FIXME: optional empty fields don't show up in @message object,
-      # we need to check that these fields are indeed defined and retrieve their type
-
       if object[key].empty?
         ::Kernel.raise ::MergeError.build(target!, object)
       end
@@ -129,12 +126,15 @@ class Pbbuilder
         #    pb.tags ["ok", "cool"]
         # end
         #
-        obj.each_key do |k|
-          # pseudo-code:
-          # pick descriptor from field - @message.class.descriptor
-          # msg = _new_message_from_descriptor(descriptor)
-          # @message[key.to_s] = _scope(msg) { block.merge!(obj[k])}
+
+        # optional empty fields don't show up in @message object,
+        # we recreate empty message, so we can fill it with values
+        if @message[key.to_s].nil?
+          field_descriptor = @message.class.descriptor.lookup(key.to_s)
+          @message[key.to_s] = _new_message_from_descriptor(field_descriptor)
         end
+
+        @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
       end
     end
   end

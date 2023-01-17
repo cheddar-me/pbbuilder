@@ -133,8 +133,6 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "optional array fragment caching" do
-    skip('not working right now')
-    
     render <<-PBBUILDER
       pb.cache! "cache-key" do
         pb.field_mask do
