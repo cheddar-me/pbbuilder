@@ -7,7 +7,7 @@ This format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Added
 - #merge! method added for PbbuilderTemplate class
 - ActiveSupport added as a dependency for gem
-- Fragment Caching support added, with #cache! and #cache_if! method in PbbuilderTemplate class.
+- Fragment Caching support added, with #cache! and #cache_if! methods in PbbuilderTemplate class.
 
 
 ### Changed
