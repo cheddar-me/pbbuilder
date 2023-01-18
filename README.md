@@ -24,7 +24,24 @@ message Person {
 }
 ```
 
-Some features of Jbuilder are missing -- like caching.
+
+### Caching
+Fragment caching is supported, it uses Rails.cache and works like caching in HTML templates:
+
+```
+pb.cache! "cache-key", expires_in: 10.minutes do
+  pb.name @person.name
+end
+```
+
+You can also conditionally cache a block by using cache_if! like this:
+
+```
+pb.cache_if! !admin?, "cache-key", expires_in: 10.minutes do
+  pb.name @person.name
+end
+```
+
 
 ## Installation
 Add this line to your application's Gemfile:
