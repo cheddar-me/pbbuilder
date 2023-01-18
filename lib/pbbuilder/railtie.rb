@@ -1,3 +1,4 @@
+require 'rails'
 require "pbbuilder/handler"
 
 class Pbbuilder

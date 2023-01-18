@@ -1,3 +1,9 @@
+require "pbbuilder/pbbuilder"
+require 'pbbuilder/errors'
+require "pbbuilder/protobuf_extension"
+require "pbbuilder/railtie" if defined?(Rails)
+
+
 # Pbbuilder makes it easy to create a protobuf message using the builder pattern
 # It is heavily inspired by jbuilder
 #
@@ -21,7 +27,7 @@
 # It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind
 # of protobuf message it needs to create.
 
-class Pbbuilder < BasicObject
+class Pbbuilder
   def initialize(message)
     @message = message
 
@@ -101,12 +107,54 @@ class Pbbuilder < BasicObject
     end
   end
 
+  # Merges object into a protobuf message, mainly used for caching.
+  #
+  # @param object [Hash]
+  def merge!(object)
+    ::Kernel.raise ::MergeError.build(target!, object) unless object.class == ::Hash
+
+    object.each_key do |key|
+      if object[key].empty?
+        ::Kernel.raise ::MergeError.build(target!, object)
+      end
+
+      if object[key].class == ::String
+        # pb.fields {"one" => "two"}
+        @message[key.to_s] = object[key]
+      elsif object[key].class == ::Array
+        # pb.tags ['test', 'ok']
+        @message[key.to_s].replace object[key]
+      elsif ( obj = object[key]).class == ::Hash
+        # pb.field_name do
+        #    pb.tags ["ok", "cool"]
+        # end
+        #
+
+        # optional empty fields don't show up in @message object,
+        # we recreate empty message, so we can fill it with values
+        if @message[key.to_s].nil?
+          field_descriptor = @message.class.descriptor.lookup(key.to_s)
+          @message[key.to_s] = _new_message_from_descriptor(field_descriptor)
+        end
+
+        @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
+      end
+    end
+  end
+
+  # @return Initialized message object
   def target!
     @message
   end
 
   private
 
+  # Appends protobuf message with existing @message object
+  #
+  # @param name string
+  # @param descriptor Google::Protobuf::FieldDescriptor
+  # @param collection hash
+  # @param &block
   def _append_repeated(name, descriptor, collection, &block)
     ::Kernel.raise ::ArgumentError, "expected Enumerable" unless collection.respond_to?(:map)
     elements = collection.map do |element|
@@ -117,6 +165,9 @@ class Pbbuilder < BasicObject
     @message[name].push(*elements)
   end
 
+  # Yields an Protobuf object in a scope of message and provided values.
+  #
+  # @param message Google::Protobuf::(field_type)
   def _scope(message)
     old_message = @message
     @message = message
@@ -126,6 +177,9 @@ class Pbbuilder < BasicObject
     @message = old_message
   end
 
+  # Build up empty protobuf message based on descriptor
+  #
+  # @param descriptor Google::Protobuf::FieldDescriptor
   def _new_message_from_descriptor(descriptor)
     ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
@@ -135,6 +189,3 @@ class Pbbuilder < BasicObject
     message_class.new
   end
 end
-
-require "pbbuilder/protobuf_extension"
-require "pbbuilder/railtie" if defined?(Rails)

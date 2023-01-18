@@ -47,7 +47,102 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
+  # Caches fragment of message. Can be called like the following:
+  # 'pb.cache! "cache-key" do; end'
+  # 'pb.cache! "cache-key", expire_in: 1.min do; end'
+  #
+  # @param key String
+  # @param options Hash
+  #
+  # @return nil
+  def cache!(key=nil, options={})
+    if @context.controller.perform_caching
+      value = _cache_fragment_for(key, options) do
+        _scope(target!) { yield self }.to_h.compact_blank
+      end
+
+      merge! value
+    else
+      yield
+    end
+  end
+
+  # Conditionally caches the protobuf message depending on the condition given as first parameter. Has the same
+  # signature as the `cache` helper method in `ActionView::Helpers::CacheHelper` and so can be used in
+  # the same way.
+  #
+  # Example:
+  #
+  #   pb.cache_if! !admin?, @person, expires_in: 10.minutes do
+  #     pb.extract! @person, :name, :age
+  #   end
+  def cache_if!(condition, *args, &block)
+    condition ? cache!(*args, &block) : yield
+  end
+
   private
+
+  # Writes to cache, if cache with keys is missing.
+  #
+  # @return fragment value
+
+  def _cache_fragment_for(key, options, &block)
+    key = _cache_key(key, options)
+    _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
+  end
+
+  # Reads from cache
+  #
+  # @param key string
+  # @params options hash
+  #
+  # @return string
+  def _read_fragment_cache(key, options = nil)
+    @context.controller.instrument_fragment_cache :read_fragment, key do
+      ::Rails.cache.read(key, options)
+    end
+  end
+
+  # Writes into cache and returns value
+  #
+  # @param key string
+  # @params options hash
+  #
+  # @return string
+  def _write_fragment_cache(key, options = nil)
+    @context.controller.instrument_fragment_cache :_write_fragment, key do
+      yield.tap do |value|
+        ::Rails.cache.write(key, value, options)
+      end
+    end
+  end
+
+  # Composes full cache key for internal storage
+  #
+  # @param key string
+  # @param options hash
+  #
+  # @return string
+  def _cache_key(key, options)
+    name_options = options.slice(:skip_digest, :virtual_path)
+    key = _fragment_name_with_digest(key, name_options)
+
+    if @context.respond_to?(:combined_fragment_cache_key)
+      key = @context.combined_fragment_cache_key(key)
+    else
+      key = url_for(key).split('://', 2).last if ::Hash === key
+    end
+
+    ::ActiveSupport::Cache.expand_cache_key(key, :ppbuilder)
+  end
+
+  def _fragment_name_with_digest(key, options)
+    if @context.respond_to?(:cache_fragment_name)
+      @context.cache_fragment_name(key, **options)
+    else
+      key
+    end
+  end
 
   def _is_active_model?(object)
     object.class.respond_to?(:model_name) && object.respond_to?(:to_partial_path)
