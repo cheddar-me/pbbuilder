@@ -124,7 +124,7 @@ class Pbbuilder
       elsif object[key].class == ::Array
         # pb.tags ['test', 'ok']
         @message[key.to_s].replace object[key]
-      elsif object[key].class == TrueClass || object[key].class == FalseClass
+      elsif object[key].class == ::TrueClass || object[key].class == ::FalseClass
         # pb.boolean true || false
         @message[key.to_s] = object[key]
       elsif ( obj = object[key]).class == ::Hash
