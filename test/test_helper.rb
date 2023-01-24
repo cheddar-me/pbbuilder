@@ -22,13 +22,14 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   add_file("pbbuilder.proto", syntax: :proto3) do
     add_message "pbbuildertest.Person" do
       optional :name, :string, 1
-      optional :last_name, :string, 8
       repeated :friends, :message, 2, "pbbuildertest.Person"
       optional :best_friend, :message, 3, "pbbuildertest.Person"
       repeated :nicknames, :string, 4
       optional :field_mask, :message, 5, "google.protobuf.FieldMask"
       map :favourite_foods, :string, :string, 6
       repeated :tags, :string, 7
+      optional :last_name, :string, 8
+      optional :boolean_me, :bool, 9
     end
   end
 end

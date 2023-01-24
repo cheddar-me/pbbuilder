@@ -85,6 +85,11 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal("suslik", result.name)
   end
 
+  test "boolean support in merge! method" do
+    assert(render('pb.merge! "boolean_me" => true').boolean_me)
+    refute(render('pb.merge! "boolean_me" => false').boolean_me)
+  end
+
   test "support for merge! method in a block" do
     result = render(<<-PBBUILDER)
       pb.best_friend do

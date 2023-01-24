@@ -111,11 +111,11 @@ class Pbbuilder
   #
   # @param object [Hash]
   def merge!(object)
-    ::Kernel.raise ::MergeError.build(target!, object) unless object.class == ::Hash
+    ::Kernel.raise Pbbuilder::MergeError.build(target!, object) unless object.class == ::Hash
 
     object.each_key do |key|
-      if object[key].empty?
-        ::Kernel.raise ::MergeError.build(target!, object)
+      if object[key].respond_to?(:empty?) && object[key].empty?
+        ::Kernel.raise Pbbuilder::MergeError.build(target!, object)
       end
 
       if object[key].class == ::String
@@ -124,6 +124,9 @@ class Pbbuilder
       elsif object[key].class == ::Array
         # pb.tags ['test', 'ok']
         @message[key.to_s].replace object[key]
+      elsif object[key].class == ::TrueClass || object[key].class == ::FalseClass
+        # pb.boolean true || false
+        @message[key.to_s] = object[key]
       elsif ( obj = object[key]).class == ::Hash
         # pb.field_name do
         #    pb.tags ["ok", "cool"]
