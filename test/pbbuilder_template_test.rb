@@ -120,10 +120,10 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     result = nil
 
     assert_nothing_raised do
-      result = render(<<-JBUILDER)
+      result = render(<<-PBBUILDER)
         pb.name "suslik"
         pb.cache! "nothing" do; end
-      JBUILDER
+      PBBUILDER
     end
 
     assert_equal "suslik", result["name"]
@@ -197,7 +197,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "conditional object fragment caching" do
-    render(<<-JBUILDER)
+    render(<<-PBBUILDER)
       pb.cache_if! true, "cache-key" do
         pb.name "Hit"
       end
@@ -205,9 +205,9 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
       pb.cache_if! false, "cache-key" do
         pb.last_name "Hit"
       end
-    JBUILDER
+    PBBUILDER
 
-    result = render(<<-JBUILDER)
+    result = render(<<-PBBUILDER)
       pb.cache_if! true, "cache-key" do
         pb.name "Miss"
       end
@@ -215,7 +215,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
       pb.cache_if! false, "cache-key" do
         pb.last_name "Miss"
       end
-    JBUILDER
+    PBBUILDER
 
     assert_equal "Hit", result["name"]
     assert_equal "Miss", result["last_name"]
