@@ -46,6 +46,9 @@ end
 ### set!
 ...
 
+### Partials
+...
+
 ### Caching
 Fragment caching is supported, it uses Rails.cache and works like caching in HTML templates:
 
