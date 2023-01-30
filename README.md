@@ -39,11 +39,12 @@ Pbbuilder.new(person) do |pb|
   end
 end
 ```
+
+Under the hood, this DSL is using `method_missing` and `set!` methods to implement this DSL. But there are other methods that you can use.
+
 ### extract!
 ...
 ### merge!
-...
-### set!
 ...
 
 ### Partials
