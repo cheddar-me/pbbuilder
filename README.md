@@ -40,7 +40,7 @@ Pbbuilder.new(person) do |pb|
 end
 ```
 
-Under the hood, this DSL is using `method_missing` and `set!` methods. But there are other methods that you can use.
+Under the hood, this DSL is using `method_missing` and `set!` methods. But there are other methods and features to use.
 
 ### extract!
 ...
