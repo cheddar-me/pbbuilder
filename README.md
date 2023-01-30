@@ -84,10 +84,14 @@ Or install it yourself as:
 ```bash
 $ gem install pbbuilder
 ```
-
-## Contributing
+## Development
 
 When debugging, make sure you're prepending `::Kernel` to any calls such as `puts` as otherwise the code will think you're trying to add another attribute onto the protobuf.
+
+In case, your looking to use break points - it's better to use `pry` for this. Just make sure to change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`.
+
+## Contributing
+Everyone is welcome to contribute.
 
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
