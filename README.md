@@ -18,18 +18,7 @@ PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) M
 ## Usage
 The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
 
-
-Following Pbbuilder code
-```
-person = RPC::Person.new
- Pbbuilder.new(person) do |pb|
-   pb.name "Hello"
-   pb.friends [1, 2, 3] do |number|
-     pb.name "Friend ##{number}"
-   end
- end
-```
-Would produce this message:
+This is an example `.proto` message.
 
 ```
 message Person {
@@ -38,6 +27,23 @@ message Person {
 }
 ```
 
+Following `.pb` file would generate a message of valid Person type.
+```
+person = RPC::Person.new
+
+Pbbuilder.new(person) do |pb|
+  pb.name "Hello"
+  pb.friends [1, 2, 3] do |number|
+    pb.name "Friend ##{number}"
+  end
+end
+```
+### extract!
+...
+### merge!
+...
+### set!
+...
 
 ### Caching
 Fragment caching is supported, it uses Rails.cache and works like caching in HTML templates:
