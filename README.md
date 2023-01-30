@@ -2,6 +2,7 @@
 PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
 ## Compatibility
+
 | | Jbuilder | Pbbuilder |
 |---|---|---|
 |  set! | 1 | 1 |
@@ -13,7 +14,6 @@ PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) M
 | child! | 1 | 0 |
 | array! | 1 | 0 |
 | ignore_nil! | 1 | 0 |
-| partial support | 1 | 0 |
 
 ## Usage
 The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
