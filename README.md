@@ -88,7 +88,7 @@ $ gem install pbbuilder
 
 When debugging, make sure you're prepending `::Kernel` to any calls such as `puts` as otherwise the code will think you're trying to add another attribute onto the protobuf.
 
-In case, your looking to use break points - it's better to use `pry` for this. Just make sure to change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`.
+In case, your looking to use break points - it's better to use `pry` for this. Just make sure to [change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`](pbbuilder/lib/pbbuilder/pbbuilder.rb).
 
 ## Contributing
 Everyone is welcome to contribute.
