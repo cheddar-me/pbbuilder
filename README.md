@@ -1,8 +1,22 @@
 # Pbbuilder
 PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
+## Compatibility
+| | Jbuilder | Pbbuilder |
+|---|---|---|
+|  set! | 1 | 1 |
+|  cache! | 1 | 1 |
+|  cache_if! | 1 | 1 |
+| extract! | 1 | 1 |
+| merge! | 1 | 1 |
+| deep_format_keys! | 1 | 0 |
+| child! | 1 | 0 |
+| array! | 1 | 0 |
+| ignore_nil! | 1 | 0 |
+| partial support | 1 | 0 |
+
 ## Usage
-It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
+The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
 
 
 Following Pbbuilder code
