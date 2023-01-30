@@ -2,7 +2,7 @@
 PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
 ## Compatibility
-We don't aim to have 100% compatibility with jbuilder gem, but we closely follow API design. 
+We don't aim to have 100% compatibility with jbuilder gem, but we closely follow jbuilder's API design. 
 
 | | Jbuilder | Pbbuilder |
 |---|---|---|
