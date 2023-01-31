@@ -6,15 +6,16 @@ We don't aim to have 100% compatibility with jbuilder gem, but we closely follow
 
 | | Jbuilder | Pbbuilder |
 |---|---|---|
-|  set! | 1 | 1 |
-|  cache! | 1 | 1 |
-|  cache_if! | 1 | 1 |
-| extract! | 1 | 1 |
-| merge! | 1 | 1 |
-| deep_format_keys! | 1 | 0 |
-| child! | 1 | 0 |
-| array! | 1 | 0 |
-| ignore_nil! | 1 | 0 |
+|  set! | ✅ | ✅ |
+|  cache! | ✅ | ✅ |
+|  cache_if! | ✅ | ✅ |
+| cache_root! | ✅| ☑️ |
+| extract! | ✅ | ✅ |
+| merge! | ✅ | ✅ |
+| deep_format_keys! | ✅ | ☑️ |
+| child! | ✅ | ☑️ |
+| array! | ✅ | ☑️ |
+| ignore_nil! | ✅ | ☑️ |
 
 ## Usage
 The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
