@@ -49,7 +49,24 @@ Under the hood, this DSL is using `method_missing` and `set!` methods. But there
 ...
 
 ### Partials
-...
+Given partial `_account.pb.builder`.
+
+```
+pb.name account.name
+pb.registration_date account.created_at
+```
+
+Using partial while passing a variable to it
+
+```
+pb.account partial: "account", account: @account
+```
+
+Here is way to use partials with collection while passing a variable to it
+
+```
+pb.accounts @accounts, partial: "account", as: account
+```
 
 ### Caching
 Fragment caching is supported, it uses Rails.cache and works like caching in HTML templates:
