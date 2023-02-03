@@ -57,7 +57,24 @@ pb.extract! account, :id, :phone_number, :tag
 ```
 
 ### merge!
-...
+`merge!` is currently used mainly for `cache!`, but could be used in templates as well. It works with all sorts of data.
+
+Strings:
+```
+pb.merge! "name" => "suslik"
+```
+
+Booleans:
+```
+pb.merge! "boolean_me" => true'
+```
+
+Blocks:
+```
+pb.best_friend do
+  pb.merge! "name" => "Manuelo"
+end
+```
 
 ### Partials
 Given partial `_account.pb.pbuilder`.
