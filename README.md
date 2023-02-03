@@ -44,12 +44,23 @@ end
 Under the hood, this DSL is using `method_missing` and `set!` methods. But there are other methods and features to use.
 
 ### extract!
-...
+Following `_account.pb.pbbuilder` partial:
+```
+pb.id account.id
+pb.phone_number account.phone_number
+pb.tag account.tag
+```
+
+could be rewritten to a shorter version with a use of `extract!`.
+```
+pb.extract! account, :id, :phone_number, :tag
+```
+
 ### merge!
 ...
 
 ### Partials
-Given partial `_account.pb.builder`.
+Given partial `_account.pb.pbuilder`.
 
 ```
 pb.name account.name
