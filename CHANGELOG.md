@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.13.2 2023.02.3
+### Fixed
+- In case ActiveSupport::Cache::FileStore in Rails is used as a cache, File.atomic_write can have a race condition and fail to rename temporary file. We're attempting to recover from that, by catching this specific error and returning a value.
+
 ## 0.13.1 2023.01.24
 ### Added
 - #merge! to support boolean values

@@ -108,11 +108,22 @@ class PbbuilderTemplate < Pbbuilder
   # @param key string
   # @params options hash
   #
-  # @return string
+  # @return string contents of a cache
   def _write_fragment_cache(key, options = nil)
-    @context.controller.instrument_fragment_cache :_write_fragment, key do
+    @context.controller.instrument_fragment_cache :write_fragment, key do
       yield.tap do |value|
-        ::Rails.cache.write(key, value, options)
+        begin
+          ::Rails.cache.write(key, value, options)
+        rescue SystemCallError
+          # In case ActiveSupport::Cache::FileStore in Rails is used as a cache, 
+          # File.atomic_write can have a race condition and fail to rename temporary 
+          # file. We're attempting to recover from that, by catching this specific 
+          # error and returning a value.
+          #
+          # @see https://github.com/rails/rails/pull/44151 
+          # @see https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/file/atomic.rb#L50
+          value
+        end
       end
     end
   end
