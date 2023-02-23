@@ -121,6 +121,10 @@ class Pbbuilder
       if object[key].class == ::String
         # pb.fields {"one" => "two"}
         @message[key.to_s] = object[key]
+      elsif object[key].class == ::Array && (@message[key.to_s].class == ::Google::Protobuf::RepeatedField)
+        # pb.tags  [ {test: 'value'}]
+        # puts "it's a repeated field"
+        # binding.pry
       elsif object[key].class == ::Array
         # pb.tags ['test', 'ok']
         @message[key.to_s].replace object[key]
