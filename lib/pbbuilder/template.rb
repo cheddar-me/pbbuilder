@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # PbbuilderTemplate is an extension of Pbbuilder to be used as a Rails template
 # It adds support for partials.
 class PbbuilderTemplate < Pbbuilder

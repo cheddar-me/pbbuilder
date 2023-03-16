@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pbbuilder/template"
 
 # Basically copied and pasted from JbuilderHandler, except it uses Pbbuilder
