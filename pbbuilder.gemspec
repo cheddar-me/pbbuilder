@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 Gem::Specification.new do |spec|
   spec.name = "pbbuilder"
-  spec.version = "0.13.3"
+  spec.version = "0.14.0"
   spec.authors = ["Bouke van der Bijl"]
   spec.email = ["bouke@cheddar.me"]
   spec.homepage = "https://github.com/cheddar-me/pbbuilder"

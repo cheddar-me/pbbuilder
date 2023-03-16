@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Pbbuilder = Class.new(begin
   require 'active_support/proxy_object'
   ActiveSupport::ProxyObject

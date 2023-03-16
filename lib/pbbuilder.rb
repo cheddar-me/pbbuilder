@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "pbbuilder/pbbuilder"
 require 'pbbuilder/errors'
 require "pbbuilder/protobuf_extension"

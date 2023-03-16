@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "google/protobuf/message_exts"
 
 module Google::Protobuf::MessageExts::ClassMethods
