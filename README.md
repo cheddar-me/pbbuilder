@@ -29,7 +29,7 @@ message Person {
 }
 ```
 
-Following `.pb` file would generate a message of valid Person type.
+The following `.pb` file would generate a message of valid Person type.
 ```
 person = RPC::Person.new
 
@@ -44,7 +44,7 @@ end
 Under the hood, this DSL is using `method_missing` and `set!` methods. But there are other methods and features to use.
 
 ### extract!
-Following `_account.pb.pbbuilder` partial:
+The following `_account.pb.pbbuilder` partial:
 ```
 pb.id account.id
 pb.phone_number account.phone_number
@@ -57,7 +57,7 @@ pb.extract! account, :id, :phone_number, :tag
 ```
 
 ### Partials
-Given partial `_account.pb.pbuilder`.
+Given partial `_account.pb.pbuilder`:
 
 ```
 pb.name account.name
@@ -93,19 +93,6 @@ pb.cache_if! !admin?, "cache-key", expires_in: 10.minutes do
 end
 ```
 
-### merge!
-`merge!` is currently used mainly for `cache!`, but could be used in templates as well. It works with all sorts of data.
-
-Strings:
-```
-pb.merge! "name" => "suslik"
-```
-
-Booleans:
-```
-pb.merge! "boolean_me" => true'
-```
-
 ## Installation
 Add this line to your application's Gemfile:
 
@@ -124,9 +111,9 @@ $ gem install pbbuilder
 ```
 ## Development
 
-When debugging, make sure you're prepending `::Kernel` to any calls such as `puts` as otherwise the code will think you're trying to add another attribute onto the protobuf.
+When debugging, make sure to prepend `::Kernel` to any calls such as `puts` as otherwise the code will think you're trying to add another attribute into protobuf object.
 
-In case, your looking to use break points - it's better to use `pry` for this. Just make sure to [change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`](lib/pbbuilder/pbbuilder.rb).
+In case, you're looking to use breakpoints for debugging purposes - it's better to use `pry`. Just make sure to [change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`](lib/pbbuilder/pbbuilder.rb).
 
 ## Contributing
 Everyone is welcome to contribute.
