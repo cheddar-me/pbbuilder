@@ -116,7 +116,7 @@ class Pbbuilder
     ::Kernel.raise Pbbuilder::MergeError.build(target!, object) unless object.class == ::Hash
 
     object.each_key do |key|
-      if object[key].respond_to?(:empty?) && object[key].empty?
+      if object[key].respond_to?(:empty?) && (object[key].class == ::Hash && object[key].class == ::Array && object[key].empty?)
         ::Kernel.raise Pbbuilder::MergeError.build(target!, object)
       end
 
@@ -125,7 +125,20 @@ class Pbbuilder
         @message[key.to_s] = object[key]
       elsif object[key].class == ::Array
         # pb.tags ['test', 'ok']
-        @message[key.to_s].replace object[key]
+        
+        field_descriptor = @message.class.descriptor.lookup(key.to_s)
+        # FIXME: with simple strings/integers everything works as expected,
+        # but if another Protobuf message should merged - errors pop-up.
+
+        if(empty_message = _lookup_message(@message, key))
+          result = object[key].each_with_object([]) do |obj, result|
+            result << self.class.new(self.instance_variable_get(:@context), empty_message.dup).merge!(obj)
+          end
+
+          @message[key.to_s].replace result
+        else
+          @message[key.to_s].replace object[key]
+        end
       elsif object[key].class == ::TrueClass || object[key].class == ::FalseClass
         # pb.boolean true || false
         @message[key.to_s] = object[key]
@@ -153,6 +166,14 @@ class Pbbuilder
   end
 
   private
+
+  # Build up empty protobuf message based on existing message and key
+  def _lookup_message(message, key)
+    field_descriptor = message.class.descriptor.lookup(key.to_s)
+    _new_message_from_descriptor(field_descriptor)
+  rescue => e
+    nil
+  end
 
   # Appends protobuf message with existing @message object
   #
