@@ -115,6 +115,9 @@ When debugging, make sure to prepend `::Kernel` to any calls such as `puts` as o
 
 In case, you're looking to use breakpoints for debugging purposes - it's better to use `pry`. Just make sure to [change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`](lib/pbbuilder/pbbuilder.rb).
 
+## Testing
+Running `bundle exec appraisal rake test` locally will run entire testsuit.
+
 ## Contributing
 Everyone is welcome to contribute.
 
