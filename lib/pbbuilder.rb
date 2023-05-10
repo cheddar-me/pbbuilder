@@ -125,17 +125,13 @@ class Pbbuilder
         @message[key.to_s] = object[key]
       elsif object[key].class == ::Array
         # pb.tags ['test', 'ok']
-        
-        field_descriptor = @message.class.descriptor.lookup(key.to_s)
-        # FIXME: with simple strings/integers everything works as expected,
-        # but if another Protobuf message should merged - errors pop-up.
 
         if(empty_message = _lookup_message(@message, key))
-          result = object[key].each_with_object([]) do |obj, result|
+          submessage = object[key].each_with_object([]) do |obj, result|
             result << self.class.new(self.instance_variable_get(:@context), empty_message.dup).merge!(obj)
           end
 
-          @message[key.to_s].replace result
+          @message[key.to_s].replace submessage
         else
           @message[key.to_s].replace object[key]
         end
@@ -156,6 +152,8 @@ class Pbbuilder
         end
 
         @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
+      elsif ( obj = object[key]).class == ::Array
+        binding.pry
       end
     end
   end
