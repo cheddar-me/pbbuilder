@@ -131,6 +131,16 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "suslik", result["name"]
   end
 
+  test "caching map values" do
+    template = <<-PBBUILDER
+      pb.cache! "some-random-cache-key" do
+        pb.favourite_foods @foods
+      end
+    PBBUILDER
+
+    assert_nothing_raised { render( template, foods: {'pizza' => 'yes', 'borsh' => 'false'})}
+  end
+
   test "object fragment caching" do
     render(<<-PBBUILDER)
       pb.cache! "cache-key" do

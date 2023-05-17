@@ -135,14 +135,24 @@ class Pbbuilder
         # end
         #
 
+        field_descriptor = @message.class.descriptor.lookup(key.to_s)
+
         # optional empty fields don't show up in @message object,
         # we recreate empty message, so we can fill it with values
         if @message[key.to_s].nil?
-          field_descriptor = @message.class.descriptor.lookup(key.to_s)
           @message[key.to_s] = _new_message_from_descriptor(field_descriptor)
         end
 
-        @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
+        if field_descriptor.label == :repeated
+          if obj.respond_to?(:to_hash)
+            obj.to_hash.each {|k, v| @message[key.to_s][k] = v}
+          elsif obj.respond_to?(:to_ary)
+            # probably we need to use .concat here
+            # binding.pry
+          end
+        else
+          @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
+        end
       end
     end
   end
