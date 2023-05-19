@@ -140,9 +140,13 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     PBBUILDER
     friends = [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
 
-    assert_nothing_raised do
-      result = render(template, friends: friends)
-    end
+    result = assert_nothing_raised { render(template, friends: friends) }
+    assert_equal("Johnny Test", result.friends[0].name)
+    assert_equal("Max Verstappen", result.friends[1].name)
+
+    result = render('pb.cache! "some-random-key" do; end ')
+    assert_equal("Johnny Test", result.friends[0].name)
+    assert_equal("Max Verstappen", result.friends[1].name)
   end
 
   test "caching map values" do
@@ -152,7 +156,13 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
       end
     PBBUILDER
 
-    assert_nothing_raised { render( template, foods: {'pizza' => 'yes', 'borsh' => 'false'})}
+    r = assert_nothing_raised { render( template, foods: {'pizza' => 'yes', 'borsh' => 'false'})}
+    assert_equal('false', r.favourite_foods['borsh'])
+    assert_equal('yes', r.favourite_foods['pizza'])
+
+    result = render('pb.cache! "some-random-cache-key" do; end ')
+    assert_equal('false', result.favourite_foods['borsh'])
+    assert_equal('yes', result.favourite_foods['pizza'])
   end
 
   test "object fragment caching" do
