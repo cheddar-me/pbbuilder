@@ -131,6 +131,20 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "suslik", result["name"]
   end
 
+  test "caching repeated partial" do
+    result = nil
+    template = <<-PBBUILDER
+      pb.cache! "some-random-key" do
+        pb.friends @friends, partial: "racers/racer", as: :racer
+      end
+    PBBUILDER
+    friends = [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+
+    assert_nothing_raised do
+      result = render(template, friends: friends)
+    end
+  end
+
   test "caching map values" do
     template = <<-PBBUILDER
       pb.cache! "some-random-cache-key" do
