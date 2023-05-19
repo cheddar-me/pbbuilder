@@ -147,8 +147,7 @@ class Pbbuilder
           if obj.respond_to?(:to_hash)
             obj.to_hash.each {|k, v| @message[key.to_s][k] = v}
           elsif obj.respond_to?(:to_ary)
-            # probably we need to use .concat here
-            # binding.pry
+            @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
           end
         else
           @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
