@@ -116,9 +116,9 @@ When debugging, make sure to prepend `::Kernel` to any calls such as `puts` as o
 In case, you're looking to use breakpoints for debugging purposes - it's better to use `pry`. Just make sure to [change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`](lib/pbbuilder/pbbuilder.rb).
 
 ## Testing
-Running `bundle exec appraisal rake test` locally will run entire testsuit with all version of rails. Or run with only certain version of rails `bundle exec appraisal rails-7-0 rake test`
+Running `bundle exec appraisal rake test` locally will run entire testsuit with all version of rails. To run tests only for certain rails version do the following `bundle exec appraisal rails-7-0 rake test`
 
-I you want to run only one test, then `m` utility should help with that. Example:
+To run only one tests from file - use `m` utility. Like this:
 `bundle exec appraisal rails-7-0 m test/pbbuilder_template_test.rb:182`
 
 ## Contributing
