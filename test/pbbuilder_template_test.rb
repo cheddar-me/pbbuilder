@@ -132,7 +132,6 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "caching repeated partial" do
-    result = nil
     template = <<-PBBUILDER
       pb.cache! "some-random-key" do
         pb.friends @friends, partial: "racers/racer", as: :racer

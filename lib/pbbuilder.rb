@@ -138,8 +138,6 @@ class Pbbuilder
           end
 
           @message[key.to_s].replace(elements)
-        else
-          @message[key].push object[key]
         end
       else
         if object[key].class == ::String
