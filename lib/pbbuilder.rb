@@ -160,7 +160,7 @@ class Pbbuilder
           object[key].each do |k, v|
             # This workaround is required to deal with frozen objects, 
             # becasue .replace is trying to overwrite string in this blows up is string is frozen.
-            if object[key][k].is_a?(Enumerable)
+            if object[key][k].is_a?(::Enumerable)
               @message[key.to_s][k.to_s].replace object[key][k]
             else
               @message[key.to_s][k.to_s] = object[key][k]
