@@ -131,10 +131,10 @@ class Pbbuilder
         end
 
         if object[key].respond_to?(:to_hash)
-          object[key].to_hash.each {|k, v| @message[key.to_s][k] = v.dup}
+          object[key].to_hash.each {|k, v| @message[key.to_s][k] = v}
         elsif object[key].respond_to?(:to_ary)
           elements = object[key].map do |obj|
-            descriptor.subtype ? descriptor.subtype.msgclass.new(obj) : obj.dup
+            descriptor.subtype ? descriptor.subtype.msgclass.new(obj) : obj
           end
 
           @message[key.to_s].replace(elements)
@@ -142,26 +142,28 @@ class Pbbuilder
       else
         if object[key].class == ::String
           # pb.fields {"one" => "two"}
-          @message[key.to_s] = object[key].dup
+          @message[key.to_s] = object[key]
         elsif object[key].class == ::TrueClass || object[key].class == ::FalseClass
           # pb.boolean true || false
-          @message[key.to_s] = object[key].dup
+          @message[key.to_s] = object[key]
         elsif object[key].class == ::Array
           # pb.field_name do
           #    pb.tags ["ok", "cool"]
           # end
 
-          @message[key.to_s] = object[key].dup
+          @message[key.to_s] = object[key]
         elsif object[key].class == ::Hash
           if @message[key.to_s].nil?
             @message[key.to_s] = _new_message_from_descriptor(descriptor)
           end
 
           object[key].each do |k, v|
+            # This workaround is required to deal with frozen objects, 
+            # becasue .replace is trying to overwrite string in this blows up is string is frozen.
             if object[key][k].is_a?(Enumerable)
               @message[key.to_s][k.to_s].replace object[key][k]
             else
-              @message[key.to_s][k.to_s] = object[key][k].dup
+              @message[key.to_s][k.to_s] = object[key][k]
             end
           end
         end
