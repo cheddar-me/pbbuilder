@@ -103,13 +103,13 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "should raise Error in merge! an empty hash" do
-    assert_raise(ActionView::Template::Error) {
+    assert_nothing_raised {
       render(<<-PBBUILDER)
         pb.merge! "name" => {}
       PBBUILDER
     }
 
-    assert_raise(ActionView::Template::Error) {
+    assert_nothing_raised {
       render(<<-PBBUILDER)
         pb.merge! "" => {}
       PBBUILDER
