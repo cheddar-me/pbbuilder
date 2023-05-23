@@ -116,9 +116,7 @@ class Pbbuilder
     ::Kernel.raise Pbbuilder::MergeError.build(target!, object) unless object.class == ::Hash
 
     object.each_key do |key|
-      if object[key].respond_to?(:empty?) && object[key].empty?
-        ::Kernel.raise Pbbuilder::MergeError.build(target!, object)
-      end
+      next if object[key].respond_to?(:empty?) && object[key].empty?
 
       descriptor = @message.class.descriptor.lookup(key.to_s)
       ::Kernel.raise ::ArgumentError, "Unknown field #{name}" if descriptor.nil?
@@ -158,11 +156,14 @@ class Pbbuilder
           end
 
           object[key].each do |k, v|
-            # This workaround is required to deal with frozen objects,
-            # becasue .replace is trying to overwrite string and it blows if string is frozen.
-            if object[key][k].is_a?(::Enumerable)
+            if object[key][k].respond_to?(:to_hash)
+              _scope(@message[key.to_s][k.to_s]) { self.merge!(object[key][k]) }
+            elsif object[key][k].respond_to?(:to_ary)
               @message[key.to_s][k.to_s].replace object[key][k]
             else
+              # Throws an error, if we try to merge nil object into empty value.
+              next if object[key][k].nil? && @message[key.to_s][k.to_s].nil?
+
               @message[key.to_s][k.to_s] = object[key][k]
             end
           end
