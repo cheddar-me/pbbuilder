@@ -116,33 +116,58 @@ class Pbbuilder
     ::Kernel.raise Pbbuilder::MergeError.build(target!, object) unless object.class == ::Hash
 
     object.each_key do |key|
-      if object[key].respond_to?(:empty?) && object[key].empty?
-        ::Kernel.raise Pbbuilder::MergeError.build(target!, object)
-      end
+      next if object[key].respond_to?(:empty?) && object[key].empty?
 
-      if object[key].class == ::String
-        # pb.fields {"one" => "two"}
-        @message[key.to_s] = object[key]
-      elsif object[key].class == ::Array
-        # pb.tags ['test', 'ok']
-        @message[key.to_s].replace object[key]
-      elsif object[key].class == ::TrueClass || object[key].class == ::FalseClass
-        # pb.boolean true || false
-        @message[key.to_s] = object[key]
-      elsif ( obj = object[key]).class == ::Hash
-        # pb.field_name do
-        #    pb.tags ["ok", "cool"]
-        # end
-        #
+      descriptor = @message.class.descriptor.lookup(key.to_s)
+      ::Kernel.raise ::ArgumentError, "Unknown field #{name}" if descriptor.nil?
 
+      if descriptor.label == :repeated
         # optional empty fields don't show up in @message object,
         # we recreate empty message, so we can fill it with values
         if @message[key.to_s].nil?
-          field_descriptor = @message.class.descriptor.lookup(key.to_s)
-          @message[key.to_s] = _new_message_from_descriptor(field_descriptor)
+          @message[key.to_s] = _new_message_from_descriptor(descriptor)
         end
 
-        @message[key.to_s] = _scope(@message[key.to_s]) { self.merge!(obj) }
+        if object[key].respond_to?(:to_hash)
+          object[key].to_hash.each {|k, v| @message[key.to_s][k] = v}
+        elsif object[key].respond_to?(:to_ary)
+          elements = object[key].map do |obj|
+            descriptor.subtype ? descriptor.subtype.msgclass.new(obj) : obj
+          end
+
+          @message[key.to_s].replace(elements)
+        end
+      else
+        if object[key].class == ::String
+          # pb.fields {"one" => "two"}
+          @message[key.to_s] = object[key]
+        elsif object[key].class == ::TrueClass || object[key].class == ::FalseClass
+          # pb.boolean true || false
+          @message[key.to_s] = object[key]
+        elsif object[key].class == ::Array
+          # pb.field_name do
+          #    pb.tags ["ok", "cool"]
+          # end
+
+          @message[key.to_s] = object[key]
+        elsif object[key].class == ::Hash
+          if @message[key.to_s].nil?
+            @message[key.to_s] = _new_message_from_descriptor(descriptor)
+          end
+
+          object[key].each do |k, v|
+            if object[key][k].respond_to?(:to_hash)
+              _scope(@message[key.to_s][k.to_s]) { self.merge!(object[key][k]) }
+            elsif object[key][k].respond_to?(:to_ary)
+              @message[key.to_s][k.to_s].replace object[key][k]
+            else
+              # Throws an error, if we try to merge nil object into empty value.
+              next if object[key][k].nil? && @message[key.to_s][k.to_s].nil?
+
+              @message[key.to_s][k.to_s] = object[key][k]
+            end
+          end
+        end
       end
     end
   end

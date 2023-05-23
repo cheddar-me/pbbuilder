@@ -103,13 +103,13 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "should raise Error in merge! an empty hash" do
-    assert_raise(ActionView::Template::Error) {
+    assert_nothing_raised {
       render(<<-PBBUILDER)
         pb.merge! "name" => {}
       PBBUILDER
     }
 
-    assert_raise(ActionView::Template::Error) {
+    assert_nothing_raised {
       render(<<-PBBUILDER)
         pb.merge! "" => {}
       PBBUILDER
@@ -129,6 +129,39 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     end
 
     assert_equal "suslik", result["name"]
+  end
+
+  test "caching repeated partial" do
+    template = <<-PBBUILDER
+      pb.cache! "some-random-key" do
+        pb.friends @friends, partial: "racers/racer", as: :racer
+      end
+    PBBUILDER
+    friends = [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+
+    result = assert_nothing_raised { render(template, friends: friends) }
+    assert_equal("Johnny Test", result.friends[0].name)
+    assert_equal("Max Verstappen", result.friends[1].name)
+
+    result = render('pb.cache! "some-random-key" do; end ')
+    assert_equal("Johnny Test", result.friends[0].name)
+    assert_equal("Max Verstappen", result.friends[1].name)
+  end
+
+  test "caching map values" do
+    template = <<-PBBUILDER
+      pb.cache! "some-random-cache-key" do
+        pb.favourite_foods @foods
+      end
+    PBBUILDER
+
+    r = assert_nothing_raised { render( template, foods: {'pizza' => 'yes', 'borsh' => 'false'})}
+    assert_equal('false', r.favourite_foods['borsh'])
+    assert_equal('yes', r.favourite_foods['pizza'])
+
+    result = render('pb.cache! "some-random-cache-key" do; end ')
+    assert_equal('false', result.favourite_foods['borsh'])
+    assert_equal('yes', result.favourite_foods['pizza'])
   end
 
   test "object fragment caching" do

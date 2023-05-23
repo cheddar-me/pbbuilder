@@ -17,6 +17,7 @@ require "google/protobuf"
 require "google/protobuf/field_mask_pb"
 
 require "active_support/testing/autorun"
+require "pry"
 
 ActiveSupport.test_order = :random
 
