@@ -33,6 +33,13 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       repeated :tags, :string, 7
       optional :last_name, :string, 8
       optional :boolean_me, :bool, 9
+      optional :logo, :message, 10, "pbbuildertest.Asset"
+    end
+
+    add_message "pbbuildertest.Asset" do
+      optional :url, :string, 1
+      optional :url_2x, :string, 2
+      optional :url_3x, :string, 3
     end
   end
 end
