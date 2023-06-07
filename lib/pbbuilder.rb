@@ -157,6 +157,11 @@ class Pbbuilder
 
           object[key].each do |k, v|
             if object[key][k].respond_to?(:to_hash)
+              if @message[key.to_s][k.to_s].nil?
+                descriptor = @message[key.to_s].class.descriptor.lookup(k.to_s)
+                @message[key.to_s][k.to_s] = _new_message_from_descriptor(descriptor)
+              end
+
               _scope(@message[key.to_s][k.to_s]) { self.merge!(object[key][k]) }
             elsif object[key][k].respond_to?(:to_ary)
               @message[key.to_s][k.to_s].replace object[key][k]

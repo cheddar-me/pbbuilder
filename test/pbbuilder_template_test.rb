@@ -116,6 +116,38 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     }
   end
 
+  test "caching a message object" do
+    template = <<-PBBUILDER
+      pb.cache! "some-random-key-again" do
+        pb.best_friend do
+          pb.name "Max Verstappen"
+          pb.logo do
+            pb.url('https://google.com/image.jpg')
+            pb.url_2x('https://google.com/image.jpg')
+            pb.url_3x('https://google.com/image.jpg')
+          end
+        end
+        pb.logo do
+          pb.url('https://google.com/image.jpg')
+          pb.url_2x('https://google.com/image.jpg')
+          pb.url_3x('https://google.com/image.jpg')
+        end
+      end
+    PBBUILDER
+
+    assert_nothing_raised { render(template) }
+
+    result = render('pb.cache! "some-random-key-again" do; end ')
+
+    assert_equal('https://google.com/image.jpg', result.logo.url)
+    assert_equal('https://google.com/image.jpg', result.logo.url_2x)
+    assert_equal('https://google.com/image.jpg', result.logo.url_3x)
+
+    assert_equal('https://google.com/image.jpg', result.best_friend.logo.url)
+    assert_equal('https://google.com/image.jpg', result.best_friend.logo.url_2x)
+    assert_equal('https://google.com/image.jpg', result.best_friend.logo.url_3x)
+  end
+
   test "empty fragment caching" do
     render 'pb.cache! "nothing" do; end'
 
