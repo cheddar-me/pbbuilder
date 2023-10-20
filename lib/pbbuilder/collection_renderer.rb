@@ -12,12 +12,6 @@ class Pbbuilder
   module CollectionRenderable # :nodoc:
     extend ActiveSupport::Concern
 
-    class_methods do
-      def supported?
-        superclass.private_method_defined?(:build_rendered_template) && self.superclass.private_method_defined?(:build_rendered_collection)
-      end
-    end
-
     private
 
     def build_rendered_template(content, template, layout = nil)

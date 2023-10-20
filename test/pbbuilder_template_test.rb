@@ -41,15 +41,6 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "hello", result.name
   end
 
-  test "partial by name with caching" do
-    skip()
-    assert_difference('Rails.cache.instance_variable_get(:@data).size') do
-      result = render('pb.partial! "partial", name: "hello", cached: true')
-
-      assert_equal "hello", result.name
-    end
-  end
-
   test "submessage partial" do
     other_racer = Racer.new(2, "Max Verstappen", [])
     racer = Racer.new(123, "Chris Harris", [], other_racer)
