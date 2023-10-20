@@ -18,10 +18,9 @@ We don't aim to have 100% compitability and coverage with jbuilder gem, but we c
 | merge! | ✅ | ✅ |
 | child! | ✅ |  |
 | array! | ✅ |  |
-| ignore_nil! | ✅ |  |
 | .call | ✅ |  |
 
-Due to protobuf message implementation, there is absolutely no need to implement support for `deep_format_keys!`, `key_format!`, `key_format` and `deep_format_keys`.
+Due to protobuf message implementation, there is absolutely no need to implement support for `deep_format_keys!`, `key_format!`, `key_format`, `deep_format_keys`, `ignore_nil!`, `ignore_nil!`, `nil`. So those would never be added.
 
 ## Usage
 The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
