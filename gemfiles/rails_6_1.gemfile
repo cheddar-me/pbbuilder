@@ -4,6 +4,7 @@ source "https://rubygems.org"
 
 gem "rake"
 gem "appraisal"
+gem "ruby-lsp"
 gem "rails", "~> 6.1.0"
 
 gemspec path: "../"
