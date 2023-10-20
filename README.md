@@ -1,7 +1,10 @@
 # Pbbuilder
 PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
-## Compatibility
+
+At least Rails 6.1 is required.
+
+## Compatibility with jBuilder
 We don't aim to have 100% compitability and coverage with jbuilder gem, but we closely follow jbuilder's API design to maintain familiarity.
 
 | | Jbuilder | Pbbuilder |
@@ -13,10 +16,12 @@ We don't aim to have 100% compitability and coverage with jbuilder gem, but we c
 | collection cache | ✅|  |
 | extract! | ✅ | ✅ |
 | merge! | ✅ | ✅ |
-| deep_format_keys! | ✅ |  |
 | child! | ✅ |  |
 | array! | ✅ |  |
 | ignore_nil! | ✅ |  |
+| .call | ✅ |  |
+
+Due to protobuf message implementation, there is absolutely no need to implement support for `deep_format_keys!`, `key_format!`, `key_format` and `deep_format_keys`.
 
 ## Usage
 The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
@@ -77,8 +82,26 @@ Here is way to use partials with collection while passing a variable to it
 pb.accounts @accounts, partial: "account", as: account
 ```
 
+## Collections (or Arrays)
+There are two different methods to render a collection. One that uses ActiveView::CollectionRenderer
+```ruby
+pb.friends partial: "racers/racer", as: :racer, collection: @racers
+```
+
+```ruby
+pb.friends "racers/racer", as: :racer, collection: @racers
+```
+
+And there are other ways, that don't use Collection Renderer (not very effective probably)
+```ruby
+pb.partial! @racer, racer: Racer.new(123, "Chris Harris", friends)
+```
+```ruby
+pb.friends @friends, partial: "racers/racer", as: :racer
+```
+
 ### Caching
-Fragment caching is supported, it uses Rails.cache and works like caching in HTML templates:
+it uses Rails.cache and works like caching in HTML templates:
 
 ```
 pb.cache! "cache-key", expires_in: 10.minutes do
@@ -93,6 +116,8 @@ pb.cache_if! !admin?, "cache-key", expires_in: 10.minutes do
   pb.name @person.name
 end
 ```
+
+Fragment caching support is currently in the works.
 
 ## Installation
 Add this line to your application's Gemfile:
