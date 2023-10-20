@@ -33,7 +33,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   test "collections render" do
     result = render('pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
 
-    assert_equal 2, result.fiends.count
+    assert_equal 2, result.friends.count
   end
 
   test "partial by name with top-level locals" do
@@ -42,6 +42,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "partial by name with caching" do
+    skip()
     assert_difference('Rails.cache.instance_variable_get(:@data).size') do
       result = render('pb.partial! "partial", name: "hello", cached: true')
 

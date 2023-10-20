@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pbbuilder/collection_renderer'
-require 'pry'
 
 # PbbuilderTemplate is an extension of Pbbuilder to be used as a Rails template
 # It adds support for partials.
@@ -51,8 +50,8 @@ class PbbuilderTemplate < Pbbuilder
         collection = options[:collection] || []
         partial = options[:partial]
         options[:locals].merge!(pb: self)
+        options[:locals].merge!(field: field)
 
-        binding.pry
         result = CollectionRenderer
             .new(@context.lookup_context, options) { |&block| _scope(message[field.to_s],&block) }
             .render_collection_with_partial(collection, partial, @context, nil)

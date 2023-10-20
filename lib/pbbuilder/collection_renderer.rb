@@ -1,7 +1,6 @@
 
 require 'active_support/concern'
 require 'action_view'
-require 'pry'
 
 begin
   require 'action_view/renderer/collection_renderer'
@@ -26,11 +25,15 @@ class Pbbuilder
     end
 
     def build_rendered_collection(templates, _spacer)
-      pb.merge!(templates.map(&:body))
+      pb.set!(field, templates.map(&:body))
     end
 
     def pb
       @options[:locals].fetch(:pb)
+    end
+
+    def field
+      @options[:locals].fetch(:field).to_s
     end
   end
 

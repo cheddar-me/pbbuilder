@@ -50,7 +50,7 @@ class Pbbuilder
 
   def set!(field, *args, &block)
     name = field.to_s
-    descriptor = @message.class.descriptor.lookup(name)
+    descriptor = _descriptor_for_field(name)
     ::Kernel.raise ::ArgumentError, "Unknown field #{name}" if descriptor.nil?
 
     if block
@@ -76,10 +76,18 @@ class Pbbuilder
           arg.to_hash.each do |k, v|
             @message[name][k] = v
           end
-        elsif arg.respond_to?(:to_ary)
+        elsif arg.respond_to?(:to_ary) && !descriptor.type.eql?(:message)
           # pb.fields ["one", "two"]
           # Using concat so it behaves the same as _append_repeated
           @message[name].concat arg.to_ary
+        elsif arg.respond_to?(:to_ary) && descriptor.type.eql?(:message)
+          # pb.friends [Person.new(name: "Johnny Test"), Person.new(name: "Max Verstappen")]
+          # Concat another Protobuf message into parent Protobuf message (not ary of strings)
+
+          args.flatten.each do |obj|
+            # Creates a message from descriptor
+            @message[name].push descriptor.subtype.msgclass.new(obj)
+          end
         else
           # pb.fields "one"
           @message[name].push arg
@@ -122,7 +130,7 @@ class Pbbuilder
     object.each_key do |key|
       next if object[key].respond_to?(:empty?) && object[key].empty?
 
-      descriptor = @message.class.descriptor.lookup(key.to_s)
+      descriptor = _descriptor_for_field(key)
       ::Kernel.raise ::ArgumentError, "Unknown field #{name}" if descriptor.nil?
 
       if descriptor.label == :repeated
@@ -187,6 +195,10 @@ class Pbbuilder
   end
 
   private
+
+  def _descriptor_for_field(field)
+    @message.class.descriptor.lookup(field.to_s)
+  end
 
   # Appends protobuf message with existing @message object
   #
