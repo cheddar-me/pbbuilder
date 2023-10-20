@@ -52,10 +52,17 @@ class PbbuilderTemplate < Pbbuilder
         options[:locals].merge!(pb: self)
         options[:locals].merge!(field: field)
 
-        result = CollectionRenderer
-            .new(@context.lookup_context, options) { |&block| _scope(message[field.to_s],&block) }
-            .render_collection_with_partial(collection, partial, @context, nil)
+        if options.has_key?(:layout)
+          raise ::NotImplementedError, "The `:layout' option is not supported in collection rendering."
+        end
+  
+        if options.has_key?(:spacer_template)
+          raise ::NotImplementedError, "The `:spacer_template' option is not supported in collection rendering."
+        end
 
+        CollectionRenderer
+          .new(@context.lookup_context, options) { |&block| _scope(message[field.to_s],&block) }
+          .render_collection_with_partial(collection, partial, @context, nil)
       else
         # pb.best_friend partial: "person", person: @best_friend
         # Call set! as a submessage, passing in the kwargs as partial options
