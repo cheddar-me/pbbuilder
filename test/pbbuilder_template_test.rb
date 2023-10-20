@@ -30,6 +30,12 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "hello", result.name
   end
 
+  test "collections render" do
+    result = render('pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
+
+    assert_equal 2, result.fiends.count
+  end
+
   test "partial by name with top-level locals" do
     result = render('pb.partial! "partial", name: "hello"')
     assert_equal "hello", result.name

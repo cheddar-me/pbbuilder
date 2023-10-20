@@ -40,6 +40,10 @@ class Pbbuilder
     set!(...)
   end
 
+  def attributes!
+    @message.to_h
+  end
+
   def respond_to_missing?(field)
     !!@message.class.descriptor.lookup(field.to_s)
   end
