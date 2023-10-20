@@ -73,21 +73,17 @@ class Pbbuilder
       if descriptor.label == :repeated
         if arg.respond_to?(:to_hash)
           # pb.fields {"one" => "two"}
-          arg.to_hash.each do |k, v|
-            @message[name][k] = v
-          end
+          arg.to_hash.each { |k, v| @message[name][k] = v }
         elsif arg.respond_to?(:to_ary) && !descriptor.type.eql?(:message)
           # pb.fields ["one", "two"]
           # Using concat so it behaves the same as _append_repeated
+
           @message[name].concat arg.to_ary
         elsif arg.respond_to?(:to_ary) && descriptor.type.eql?(:message)
           # pb.friends [Person.new(name: "Johnny Test"), Person.new(name: "Max Verstappen")]
           # Concat another Protobuf message into parent Protobuf message (not ary of strings)
 
-          args.flatten.each do |obj|
-            # Creates a message from descriptor
-            @message[name].push descriptor.subtype.msgclass.new(obj)
-          end
+          args.flatten.each {|obj| @message[name].push descriptor.subtype.msgclass.new(obj)}
         else
           # pb.fields "one"
           @message[name].push arg
