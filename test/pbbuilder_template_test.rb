@@ -30,6 +30,36 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "hello", result.name
   end
 
+  test "render collections with partial as kwarg" do
+    result = render('pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
+
+    assert_equal 2, result.friends.count
+  end
+
+  test "CollectionRenderer: raises an error on a render with :layout option" do
+    error = assert_raises NotImplementedError do
+      render('pb.friends partial: "racers/racer", as: :racer, layout: "layout", collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
+    end
+
+    assert_equal "The `:layout' option is not supported in collection rendering.", error.message
+  end
+
+  test "CollectionRenderer: raises an error on a render with :spacer_template option" do
+    error = assert_raises NotImplementedError do
+      render('pb.friends partial: "racers/racer", as: :racer, spacer_template: "template", collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
+    end
+
+    assert_equal "The `:spacer_template' option is not supported in collection rendering.", error.message
+  end
+
+  test " render collections with partial as arg" do
+    skip("This will be addressed in future version of a gem")
+    result = render('pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
+
+    assert_equal 2, result.friends.count
+  end
+
+
   test "partial by name with top-level locals" do
     result = render('pb.partial! "partial", name: "hello"')
     assert_equal "hello", result.name

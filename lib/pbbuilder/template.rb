@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pbbuilder/collection_renderer'
+
 # PbbuilderTemplate is an extension of Pbbuilder to be used as a Rails template
 # It adds support for partials.
 class PbbuilderTemplate < Pbbuilder
@@ -37,6 +39,30 @@ class PbbuilderTemplate < Pbbuilder
         super(field, *args) do |element|
           _set_inline_partial(element, kwargs)
         end
+      elsif kwargs.has_key?(:collection) && kwargs.has_key?(:as)
+        # pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+        # collection renderer
+        options = kwargs.deep_dup
+
+        options.reverse_merge! locals: options.except(:partial, :as, :collection, :cached)
+        options.reverse_merge! ::PbbuilderTemplate.template_lookup_options
+
+        collection = options[:collection] || []
+        partial = options[:partial]
+        options[:locals].merge!(pb: self)
+        options[:locals].merge!(field: field)
+
+        if options.has_key?(:layout)
+          raise ::NotImplementedError, "The `:layout' option is not supported in collection rendering."
+        end
+  
+        if options.has_key?(:spacer_template)
+          raise ::NotImplementedError, "The `:spacer_template' option is not supported in collection rendering."
+        end
+
+        CollectionRenderer
+          .new(@context.lookup_context, options) { |&block| _scope(message[field.to_s],&block) }
+          .render_collection_with_partial(collection, partial, @context, nil)
       else
         # pb.best_friend partial: "person", person: @best_friend
         # Call set! as a submessage, passing in the kwargs as partial options
