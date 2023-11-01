@@ -54,7 +54,7 @@ class PbbuilderTemplate < Pbbuilder
         # but also needs locals[:pb_root] to apply rendered partial to top level protobuf message.
 
         # This logic could be found in CollectionRenderer#build_rendered_collection method that we overwrote.
-        options[:locals].merge!(pb: self.class.new(@context, new_message_for(field)))
+        options[:locals].merge!(pb: ::PbbuilderTemplate.new(@context, new_message_for(field)))
         options[:locals].merge!(pb_root: self)
         options[:locals].merge!(field: field)
 
