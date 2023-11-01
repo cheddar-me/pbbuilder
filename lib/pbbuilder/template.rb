@@ -49,13 +49,19 @@ class PbbuilderTemplate < Pbbuilder
 
         collection = options[:collection] || []
         partial = options[:partial]
-        options[:locals].merge!(pb: self)
+
+        # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
+        # but also needs locals[:pb_root] to apply rendered partial to top level protobuf message.
+
+        # This logic could be found in CollectionRenderer#build_rendered_collection method that we overwrote.
+        options[:locals].merge!(pb: self.class.new(@context, new_message_for(field)))
+        options[:locals].merge!(pb_root: self)
         options[:locals].merge!(field: field)
 
         if options.has_key?(:layout)
           raise ::NotImplementedError, "The `:layout' option is not supported in collection rendering."
         end
-  
+
         if options.has_key?(:spacer_template)
           raise ::NotImplementedError, "The `:spacer_template' option is not supported in collection rendering."
         end

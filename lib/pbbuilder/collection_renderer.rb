@@ -16,11 +16,15 @@ class Pbbuilder
     end
 
     def build_rendered_collection(templates, _spacer)
-      pb.set!(field, templates.map(&:body))
+      pb_root.set!(field, templates.map(&:body))
     end
 
     def pb
       @options[:locals].fetch(:pb)
+    end
+
+    def pb_root
+      @options[:locals].fetch(:pb_root)
     end
 
     def field
