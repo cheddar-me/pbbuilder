@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 This format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.16.2
+### Changed
+- All collection-like objects are rendered with ActiveView::CollectionRenderer
+
+## 0.16.1
+### Changed
+- Deal properly with recursive protobuf messages while using ActiveView::CollectionRenderer
+
 ## 0.16.0
 ### Added
 - Added support for new collection rendering, that is backed by ActiveView::CollectionRenderer.
