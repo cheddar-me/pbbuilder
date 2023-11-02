@@ -162,6 +162,13 @@ class Pbbuilder
     @message
   end
 
+  def new_message_for(field)
+    descriptor = _descriptor_for_field(field)
+    ::Kernel.raise ::ArgumentError, "Unknown field #{field}" if descriptor.nil?
+
+    _new_message_from_descriptor(descriptor)
+  end
+
   private
 
   def _descriptor_for_field(field)

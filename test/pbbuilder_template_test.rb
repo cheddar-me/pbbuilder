@@ -12,12 +12,20 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     pb.extract! racer, :name
     pb.friends racer.friends, partial: "racers/racer", as: :racer
     pb.best_friend partial: "racers/racer", racer: racer.best_friend if racer.best_friend.present?
+    pb.logo partial: "asset", asset: racer.logo if racer.logo.present?
+  PBBUILDER
+
+  ASSET_PARTIAL = <<-PBBUILDER
+    pb.url asset.url
+    pb.url_2x asset.url
+    pb.url_3x asset.url
   PBBUILDER
 
   PARTIALS = {
     "_partial.pb.pbbuilder" => "pb.name name",
     "_person.pb.pbbuilder" => PERSON_PARTIAL,
     "racers/_racer.pb.pbbuilder" => RACER_PARTIAL,
+    "_asset.pb.pbbuilder" => ASSET_PARTIAL,
 
     # Ensure we find only Pbbuilder partials from within Pbbuilder templates.
     "_person.html.erb" => "Hello world!"
@@ -31,9 +39,19 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "render collections with partial as kwarg" do
-    result = render('pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
+    template = <<-PBBUILDER
+      more_friends = [Racer.new(4, "Johnny Brave", [], nil, API::Asset.new(url: "https://google.com/test3.svg"))]
+      friends_of_racer = [Racer.new(3, "Chris Harris", more_friends, nil, API::Asset.new(url: "https://google.com/test2.svg"))]
+      racers = [Racer.new(1, "Johnny Test", friends_of_racer, nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
+      pb.friends partial: "racers/racer", as: :racer, collection: racers
+    PBBUILDER
+    result = render(template)
 
     assert_equal 2, result.friends.count
+    assert_nil result.logo
+    assert_equal "https://google.com/test1.svg", result.friends.first.logo.url
+    assert_equal "https://google.com/test2.svg", result.friends.first.friends.first.logo.url
+    assert_equal "https://google.com/test3.svg", result.friends.first.friends.first.friends.first.logo.url
   end
 
   test "CollectionRenderer: raises an error on a render with :layout option" do
@@ -52,13 +70,12 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "The `:spacer_template' option is not supported in collection rendering.", error.message
   end
 
-  test " render collections with partial as arg" do
+  test "render collections with partial as arg" do
     skip("This will be addressed in future version of a gem")
     result = render('pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
 
     assert_equal 2, result.friends.count
   end
-
 
   test "partial by name with top-level locals" do
     result = render('pb.partial! "partial", name: "hello"')

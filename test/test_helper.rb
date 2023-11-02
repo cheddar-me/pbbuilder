@@ -46,6 +46,7 @@ end
 
 module API
   Person = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Person").msgclass
+  Asset = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Asset").msgclass
 end
 
 class << Rails
@@ -54,7 +55,7 @@ class << Rails
   end
 end
 
-class Racer < Struct.new(:id, :name, :friends, :best_friend)
+class Racer < Struct.new(:id, :name, :friends, :best_friend, :logo)
   extend ActiveModel::Naming
   include ActiveModel::Conversion
 end
