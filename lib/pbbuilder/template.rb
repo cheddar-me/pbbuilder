@@ -43,12 +43,11 @@ class PbbuilderTemplate < Pbbuilder
       if args.one? && kwargs.has_key?(:as)
         # pb.friends @friends, partial: "friend", as: :friend
         # Call set! on the super class, passing in a block that renders a partial for every element
-        super(field, *args) do |element|
-          _set_inline_partial(element, kwargs)
-        end
+
+        _render_collection_with_options(field, args.flatten, kwargs)
       elsif kwargs.has_key?(:collection) && kwargs.has_key?(:as)
         # pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
-        _render_collection_with_options(field, kwargs[:collection], kwargs.deep_dup)
+        _render_collection_with_options(field, kwargs[:collection], kwargs)
       else
         # pb.best_friend partial: "person", person: @best_friend
         # Call set! as a submessage, passing in the kwargs as partial options
@@ -57,7 +56,13 @@ class PbbuilderTemplate < Pbbuilder
         end
       end
     else
-      super
+      if args.one? && kwargs.has_key?(:collection) && kwargs.has_key?(:as)
+        # pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+
+        _render_collection_with_options(field, kwargs[:collection], kwargs.merge(partial: args.first))
+      else
+        super
+      end
     end
   end
 
