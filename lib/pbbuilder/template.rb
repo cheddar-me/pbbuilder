@@ -36,6 +36,7 @@ class PbbuilderTemplate < Pbbuilder
   #  pb.friends @friends, partial: "friend", as: :friend
   #  pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
   #  pb.best_friend partial: "person", person: @best_friend
+  #  pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
 
   def set!(field, *args, **kwargs, &block)
     # If partial options are being passed, we render a submessage with a partial
@@ -58,7 +59,6 @@ class PbbuilderTemplate < Pbbuilder
     else
       if args.one? && kwargs.has_key?(:collection) && kwargs.has_key?(:as)
         # pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
-
         _render_collection_with_options(field, kwargs[:collection], kwargs.merge(partial: args.first))
       else
         super
