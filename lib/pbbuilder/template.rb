@@ -50,12 +50,15 @@ class PbbuilderTemplate < Pbbuilder
         collection = options[:collection] || []
         partial = options[:partial]
 
-        # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
-        # but also needs locals[:pb_root] to apply rendered partial to top level protobuf message.
+        # The way recursive rendering works is that CollectionRenderer needs to be aware of node its currently rendering and parent node,
+        # these is no need to know entire "stack" of nodes. CollectionRenderer would traverse to bottom node render that first and then go up in stack.
 
-        # This logic could be found in CollectionRenderer#build_rendered_collection method that we overwrote.
+        # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
+        # but also needs locals[:pb_parent] to apply rendered partial to top level protobuf message.
+
+        # This logic could be found in CollectionRenderer#build_rendered_collection method that we over wrote.
         options[:locals].merge!(pb: ::PbbuilderTemplate.new(@context, new_message_for(field)))
-        options[:locals].merge!(pb_root: self)
+        options[:locals].merge!(pb_parent: self)
         options[:locals].merge!(field: field)
 
         if options.has_key?(:layout)

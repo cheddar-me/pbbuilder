@@ -39,15 +39,19 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "render collections with partial as kwarg" do
-    result = render('pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test.svg")), Racer.new(2, "Max Verstappen", [])]')
+    template = <<-PBBUILDER
+      more_friends = [Racer.new(4, "Johnny Brave", [], nil, API::Asset.new(url: "https://google.com/test3.svg"))]
+      friends_of_racer = [Racer.new(3, "Chris Harris", more_friends, nil, API::Asset.new(url: "https://google.com/test2.svg"))]
+      racers = [Racer.new(1, "Johnny Test", friends_of_racer, nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
+      pb.friends partial: "racers/racer", as: :racer, collection: racers
+    PBBUILDER
+    result = render(template)
 
     assert_equal 2, result.friends.count
     assert_nil result.logo
-    result.friends.first.logo.tap do |logo|
-      assert_equal "https://google.com/test.svg", logo.url
-      assert_equal "https://google.com/test.svg", logo.url_2x
-      assert_equal "https://google.com/test.svg", logo.url_3x
-    end
+    assert_equal "https://google.com/test1.svg", result.friends.first.logo.url
+    assert_equal "https://google.com/test2.svg", result.friends.first.friends.first.logo.url
+    assert_equal "https://google.com/test3.svg", result.friends.first.friends.first.friends.first.logo.url
   end
 
   test "CollectionRenderer: raises an error on a render with :layout option" do
