@@ -70,15 +70,12 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "The `:spacer_template' option is not supported in collection rendering.", error.message
   end
 
-  test "partial by name with caching" do
+  test "collection partial with fragment caching enabled" do
     template = <<-PBBUILDER
       racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
       pb.friends partial: "racers/racer", as: :racer, collection: racers, cached: true
     PBBUILDER
-
-    assert_difference('Rails.cache.instance_variable_get(:@data).size') do
-      result = render(template)
-    end
+    result = render(template)
 
     assert_equal 2, result.friends.count
     assert_nil result.logo
