@@ -82,7 +82,7 @@ pb.accounts @accounts, partial: "account", as: account
 ```
 
 ## Collections (or Arrays)
-There are two different methods to render a collection. One that uses ActiveView::CollectionRenderer
+There are two different methods to render a collection.
 ```ruby
 pb.friends partial: "racers/racer", as: :racer, collection: @racers
 ```
@@ -91,7 +91,6 @@ pb.friends partial: "racers/racer", as: :racer, collection: @racers
 pb.friends "racers/racer", as: :racer, collection: @racers
 ```
 
-And there are other ways, that don't use Collection Renderer (not very effective probably)
 ```ruby
 pb.partial! @racer, racer: Racer.new(123, "Chris Harris", friends)
 ```

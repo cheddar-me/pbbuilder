@@ -70,8 +70,19 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "The `:spacer_template' option is not supported in collection rendering.", error.message
   end
 
+  test "collection partial with fragment caching enabled" do
+    template = <<-PBBUILDER
+      racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
+      pb.friends partial: "racers/racer", as: :racer, collection: racers, cached: true
+    PBBUILDER
+    result = render(template)
+
+    assert_equal 2, result.friends.count
+    assert_nil result.logo
+    assert_equal "https://google.com/test1.svg", result.friends.first.logo.url
+  end
+
   test "render collections with partial as arg" do
-    skip("This will be addressed in future version of a gem")
     result = render('pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
 
     assert_equal 2, result.friends.count
@@ -356,9 +367,10 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
 
     view = ActionView::Base.with_empty_template_cache.new(lookup_context, assigns, controller)
 
-    def view.view_cache_dependencies
-      []
-    end
+    def view.view_cache_dependencies; [] end
+    def view.combined_fragment_cache_key(key) [ key ] end
+    def view.cache_fragment_name(key, *) key end
+    def view.fragment_name_with_digest(key) key end
 
     view
   end
