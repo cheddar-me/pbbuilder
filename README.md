@@ -116,7 +116,7 @@ pb.cache_if! !admin?, "cache-key", expires_in: 10.minutes do
 end
 ```
 
-Fragment caching currently works through ActionView::CollectionRenderer.
+Fragment caching currently works through ActionView::CollectionRenderer and can be used only with following syntax:
 
 ```ruby
 pb.friends partial: "racers/racer", as: :racer, collection: @racers, cached: true
