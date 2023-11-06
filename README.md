@@ -13,7 +13,7 @@ We don't aim to have 100% compitability and coverage with jbuilder gem, but we c
 |  cache! | ✅ | ✅ |
 |  cache_if! | ✅ | ✅ |
 | cache_root! | ✅|  |
-| collection cache | ✅|  |
+| fragment cache | ✅| ✅ |
 | extract! | ✅ | ✅ |
 | merge! | ✅ | ✅ |
 | child! | ✅ |  |
@@ -116,7 +116,15 @@ pb.cache_if! !admin?, "cache-key", expires_in: 10.minutes do
 end
 ```
 
-Fragment caching support is currently in the works.
+Fragment caching currently works through ActionView::CollectionRenderer.
+
+```ruby
+pb.friends partial: "racers/racer", as: :racer, collection: @racers, cached: true
+```
+
+```ruby
+pb.friends "racers/racer", as: :racer, collection: @racers, cached: true
+```
 
 ## Installation
 Add this line to your application's Gemfile:
