@@ -30,7 +30,7 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
-  # Set value in a field in message.
+  # Set the value in the message field.
   #
   # @example
   #  pb.friends @friends, partial: "friend", as: :friend
@@ -42,25 +42,29 @@ class PbbuilderTemplate < Pbbuilder
     # If partial options are being passed, we render a submessage with a partial
     if kwargs.has_key?(:partial)
       if args.one? && kwargs.has_key?(:as)
-        # pb.friends @friends, partial: "friend", as: :friend
+        # example syntax that should end up here:
+        #   pb.friends @friends, partial: "friend", as: :friend
         # Call set! on the super class, passing in a block that renders a partial for every element
         super(field, *args) do |element|
           _set_inline_partial(element, kwargs)
         end
       elsif kwargs.has_key?(:collection) && kwargs.has_key?(:as)
-        # pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+        # example syntax that should end up here:
+        #   pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
 
         _render_collection_with_options(field, kwargs[:collection], kwargs)
       else
+        # # example syntax that should end up here:
         # pb.best_friend partial: "person", person: @best_friend
-        # Call set! as a submessage, passing in the kwargs as partial options
+
         super(field, *args) do
           _render_partial_with_options(kwargs)
         end
       end
     else
       if args.one? && kwargs.has_key?(:collection) && kwargs.has_key?(:as)
-        # pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+        # example syntax that should end up here:
+        #   pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
         _render_collection_with_options(field, kwargs[:collection], kwargs.merge(partial: args.first))
       else
         super
@@ -103,15 +107,16 @@ class PbbuilderTemplate < Pbbuilder
 
   private
 
-  # Uses ActionView::CollectionRenderer to render collection effectively (and users fragment caching)
+  # Uses ActionView::CollectionRenderer to render collection effectively and to use rails built in fragment caching support.
   #
-  # The way recursive rendering works is that CollectionRenderer needs to be aware of node its currently rendering and parent node,
-  # these is no need to know entire "stack" of nodes. CollectionRenderer would traverse to bottom node render that first and then go up in stack.
+  # The way recursive rendering works is that the CollectionRenderer needs to be aware of the node its currently rendering and parent node.
+  # There is no need to know the entire "stack" of nodes. ActionView::CollectionRenderer would traverse to bottom node render it first and then go one leve up in stack,
+  # rince and repeat until entire stack is rendered.
 
   # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
-  # but also needs locals[:pb_parent] to apply rendered partial to top level protobuf message.
+  # but also needs locals[:pb_parent] to apply the rendered partial to the top level protobuf message.
 
-  # This logic could be found in CollectionRenderer#build_rendered_collection method that we over wrote.
+  # This logic can be found in CollectionRenderer#build_rendered_collection method that we overwrote.
   def _render_collection_with_options(field, collection, options)
     partial = options[:partial]
 
@@ -138,7 +143,6 @@ class PbbuilderTemplate < Pbbuilder
   # Writes to cache, if cache with keys is missing.
   #
   # @return fragment value
-
   def _cache_fragment_for(key, options, &block)
     key = _cache_key(key, options)
     _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)

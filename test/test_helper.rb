@@ -59,7 +59,7 @@ class Racer < Struct.new(:id, :name, :friends, :best_friend, :logo)
   extend ActiveModel::Naming
   include ActiveModel::Conversion
 
-  # For compatibility with ActiveModel::API.
+  # Fragment caching needs to know, if record could be persisted. We set it to false, this is a default in ActiveModel::API.
   def persisted?
     false
   end

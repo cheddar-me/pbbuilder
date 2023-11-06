@@ -57,12 +57,14 @@ class Pbbuilder
       ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
       if descriptor.label == :repeated
-        # pb.field @array { |element| pb.name element.name }
+        # example syntax that should end up here:
+        #    pb.field @array { |element| pb.name element.name }
         ::Kernel.raise ::ArgumentError, "wrong number of arguments #{args.length} (expected 1)" unless args.length == 1
         collection = args.first
         _append_repeated(name, descriptor, collection, &block)
       else
-        # pb.field { pb.name "hello" }
+        # example syntax that should end up here:
+        #   pb.field { pb.name "hello" }
         ::Kernel.raise ::ArgumentError, "wrong number of arguments (expected 0)" unless args.empty?
         message = (@message[name] ||= _new_message_from_descriptor(descriptor))
         _scope(message, &block)
@@ -71,7 +73,8 @@ class Pbbuilder
       arg = args.first
       if descriptor.label == :repeated
         if arg.respond_to?(:to_hash)
-          # pb.fields {"one" => "two"}
+          # example syntax that should end up here:
+          #   pb.fields {"one" => "two"}
           arg.to_hash.each { |k, v| @message[name][k] = v }
         elsif arg.respond_to?(:to_ary) && !descriptor.type.eql?(:message)
           # pb.fields ["one", "two"]
@@ -79,20 +82,23 @@ class Pbbuilder
 
           @message[name].concat arg.to_ary
         elsif arg.respond_to?(:to_ary) && descriptor.type.eql?(:message)
-          # pb.friends [Person.new(name: "Johnny Test"), Person.new(name: "Max Verstappen")]
-          # Concat another Protobuf message into parent Protobuf message (not ary of strings)
+          # example syntax that should end up here:
+          #   pb.friends [Person.new(name: "Johnny Test"), Person.new(name: "Max Verstappen")]
 
           args.flatten.each {|obj| @message[name].push descriptor.subtype.msgclass.new(obj)}
         else
-          # pb.fields "one"
+          # example syntax that should end up here:
+          #   pb.fields "one"
           @message[name].push arg
         end
       else
-        # pb.field "value"
+        # example syntax that should end up here:
+        #   pb.field "value"
         @message[name] = arg
       end
     else
-      # pb.field @value, :id, :name, :url
+      # example syntax that should end up here:
+      #   pb.field @value, :id, :name, :url
       element = args.shift
       if descriptor.label == :repeated
         # If the message field that's being assigned is a repeated field, then we assume that `element` is enumerable.
