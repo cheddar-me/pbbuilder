@@ -5,6 +5,8 @@ gemfile(true) do
 
     gem 'activesupport', '~> 7.0.4'
     gem 'actionview', '~> 7.0.4'
+    gem 'activemodel', '~> 7.0.4'
+    gem 'actionpack', '~> 7.0.4'
     gem 'google-protobuf'
     gem 'pbbuilder', path: '../'
 end
@@ -14,8 +16,11 @@ require 'benchmark'
 require 'active_support'
 require 'action_view'
 require 'action_view/testing/resolvers'
+require 'action_view/test_case'
 require 'google/protobuf'
 require 'pbbuilder'
+require 'active_model'
+require 'action_controller'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
     add_file("pbbuilder.proto", syntax: :proto3) do
@@ -24,7 +29,6 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
         repeated :friends, :message, 2, "pbbuildertest.Person"
         optional :best_friend, :message, 3, "pbbuildertest.Person"
         repeated :nicknames, :string, 4
-        optional :field_mask, :message, 5, "google.protobuf.FieldMask"
         map :favourite_foods, :string, :string, 6
         repeated :tags, :string, 7
         optional :last_name, :string, 8
@@ -44,12 +48,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     Person = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Person").msgclass
     Asset = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Asset").msgclass
   end
-  
-  class << Rails
-    def cache
-      @cache ||= ActiveSupport::Cache::MemoryStore.new
-    end
-  end
+
   
   class Racer < Struct.new(:id, :name, :friends, :best_friend, :logo)
     extend ActiveModel::Naming
