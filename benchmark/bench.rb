@@ -21,6 +21,7 @@ require 'google/protobuf'
 require 'pbbuilder'
 require 'active_model'
 require 'action_controller'
+require_relative '../lib/pbbuilder/handler'
 
 Google::Protobuf::DescriptorPool.generated_pool.build do
     add_file("pbbuilder.proto", syntax: :proto3) do
@@ -53,34 +54,12 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
   class Racer < Struct.new(:id, :name, :friends, :best_friend, :logo)
     extend ActiveModel::Naming
     include ActiveModel::Conversion
+
+    def persisted?
+      false
+    end
   end
-  
 
-COLLECTION_RENDERER_TEMPLATE = <<-PBBUILDER
-    more_friends = [Racer.new(4, "Johnny Brave", [], nil, API::Asset.new(url: "https://google.com/test3.svg"))]
-    friends_of_racer = [Racer.new(3, "Chris Harris", more_friends, nil, API::Asset.new(url: "https://google.com/test2.svg"))]
-    racers = [Racer.new(1, "Johnny Test", friends_of_racer, nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
-    pb.friends partial: "racers/racer", as: :racer, collection: racers
-PBBUILDER
-
-STANDARD_TEMPLATE = <<-PBBUILDER
-    more_friends = [Racer.new(4, "Johnny Brave", [], nil, API::Asset.new(url: "https://google.com/test3.svg"))]
-    friends_of_racer = [Racer.new(3, "Chris Harris", more_friends, nil, API::Asset.new(url: "https://google.com/test2.svg"))]
-    racers = [Racer.new(1, "Johnny Test", friends_of_racer, nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
-    pb.friends racers partial: "racers/racer", as: :racer
-PBBUILDER
-
-## Probably caching doesn't work? Instead of struct object, we need to use ActiveRecord object with sqlite.
-FRAGMENT_CACHING_TEMPLATE = <<-PBBUILDER
-    more_friends = [Racer.new(4, "Johnny Brave", [], nil, API::Asset.new(url: "https://google.com/test3.svg"))]
-    friends_of_racer = [Racer.new(3, "Chris Harris", more_friends, nil, API::Asset.new(url: "https://google.com/test2.svg"))]
-    racers = [Racer.new(1, "Johnny Test", friends_of_racer, nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
-    pb.friends partial: "racers/racer", as: :racer, collection: racers, cached: true
-PBBUILDER
-
-PERSON_PARTIAL = <<-PBBUILDER
-    pb.extract! person, :name
-PBBUILDER
 
 RACER_PARTIAL = <<-PBBUILDER
     pb.extract! racer, :name
@@ -96,26 +75,25 @@ pb.url_3x asset.url
 PBBUILDER
 
 PARTIALS = {
-    "_partial.pb.pbbuilder" => "pb.name name",
-    "_person.pb.pbbuilder" => PERSON_PARTIAL,
     "racers/_racer.pb.pbbuilder" => RACER_PARTIAL,
     "_asset.pb.pbbuilder" => ASSET_PARTIAL,
-
-    # Ensure we find only Pbbuilder partials from within Pbbuilder templates.
-    "_person.html.erb" => "Hello world!"
   }
+
+Mime::Type.register "application/vnd.google.protobuf", :pb, [], %w(pb)
+ActionView::Template.register_template_handler :pbbuilder, PbbuilderHandler
 
 
 def with_collection_render_method
-    render(COLLECTION_RENDERER_TEMPLATE)
+  template = <<-PBBUILDER
+    friends = [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+    pb.friends partial: "racers/racer", as: :racer, collection: @friends
+  PBBUILDER
+  render(template)
 end
 
 def without_collection_render_method
-    render(STANDARD_TEMPLATE)
-end
-
-def with_fragment_caching_method
-    render(FRAGMENT_CACHING_TEMPLATE)
+  friends = [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+  render("pb.partial! @racer", racer: Racer.new(123, "Chris Harris", friends))
 end
 
 def render(*args)
@@ -145,9 +123,38 @@ def build_view(options = {})
     view
 end
 
+n = 100
+collection_size = 50000
 
 Benchmark.bm do |x|
-    x.report("with collection render:") { with_collection_render_method }
-    x.report("without collection render:") { without_collection_render_method }
-    x.report("with fragment caching:") { with_fragment_caching_method }
+    x.report("with CollectionRender rendered 1 time:") do
+      with_collection_render_method
+    end
+
+    x.report("without CollectionRender rendered 1 times:") do
+      without_collection_render_method
+    end
+    
+    x.report("with CollectionRender rendered #{n} times:") do
+      n.times { with_collection_render_method }
+    end
+
+    x.report("without CollectionRender rendered #{n} times:") do
+      n.times { without_collection_render_method }
+    end
+
+    x.report("with CollectionRender order #{collection_size} collection:") do
+      template = <<-PBBUILDER
+        friends = []
+        #{collection_size}.times { |i| friends << Racer.new(i, "Johnny Test", []) }
+        pb.friends partial: "racers/racer", as: :racer, collection: @friends
+      PBBUILDER
+      render(template)
+    end
+
+    x.report("without CollectionRender order #{collection_size} collection:") do
+      friends = []
+      collection_size.times { |i| friends << Racer.new(i, "Johnny Test #{i}", []) }
+      render("pb.partial! @racer", racer: Racer.new(123, "Chris Harris", friends))
+    end
 end
