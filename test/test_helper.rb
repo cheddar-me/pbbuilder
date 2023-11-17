@@ -58,6 +58,11 @@ end
 class Racer < Struct.new(:id, :name, :friends, :best_friend, :logo)
   extend ActiveModel::Naming
   include ActiveModel::Conversion
+
+  # Fragment caching needs to know, if record could be persisted. We set it to false, this is a default in ActiveModel::API.
+  def persisted?
+    false
+  end
 end
 
 Mime::Type.register "application/vnd.google.protobuf", :pb, [], %w(pb)

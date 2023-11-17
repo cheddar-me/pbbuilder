@@ -54,6 +54,18 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "https://google.com/test3.svg", result.friends.first.friends.first.friends.first.logo.url
   end
 
+  test "collection partial with fragment caching enabled" do
+    template = <<-PBBUILDER
+      racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
+      pb.friends partial: "racers/racer", as: :racer, collection: racers, cached: true
+    PBBUILDER
+    result = render(template)
+
+    assert_equal 2, result.friends.count
+    assert_nil result.logo
+    assert_equal "https://google.com/test1.svg", result.friends.first.logo.url
+  end
+
   test "CollectionRenderer: raises an error on a render with :layout option" do
     error = assert_raises NotImplementedError do
       render('pb.friends partial: "racers/racer", as: :racer, layout: "layout", collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
@@ -356,9 +368,10 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
 
     view = ActionView::Base.with_empty_template_cache.new(lookup_context, assigns, controller)
 
-    def view.view_cache_dependencies
-      []
-    end
+    def view.view_cache_dependencies; [] end
+    def view.combined_fragment_cache_key(key) [ key ] end
+    def view.cache_fragment_name(key, *) key end
+    def view.fragment_name_with_digest(key) key end
 
     view
   end

@@ -30,57 +30,45 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
+  # Set the value in the message field.
+  #
+  # @example
+  #  pb.friends @friends, partial: "friend", as: :friend
+  #  pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+  #  pb.best_friend partial: "person", person: @best_friend
+  #  pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+
   def set!(field, *args, **kwargs, &block)
     # If partial options are being passed, we render a submessage with a partial
     if kwargs.has_key?(:partial)
       if args.one? && kwargs.has_key?(:as)
-        # pb.friends @friends, partial: "friend", as: :friend
+        # example syntax that should end up here:
+        #   pb.friends @friends, partial: "friend", as: :friend
         # Call set! on the super class, passing in a block that renders a partial for every element
         super(field, *args) do |element|
           _set_inline_partial(element, kwargs)
         end
       elsif kwargs.has_key?(:collection) && kwargs.has_key?(:as)
-        # pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
-        # collection renderer
-        options = kwargs.deep_dup
+        # example syntax that should end up here:
+        #   pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
 
-        options.reverse_merge! locals: options.except(:partial, :as, :collection, :cached)
-        options.reverse_merge! ::PbbuilderTemplate.template_lookup_options
-
-        collection = options[:collection] || []
-        partial = options[:partial]
-
-        # The way recursive rendering works is that CollectionRenderer needs to be aware of node its currently rendering and parent node,
-        # these is no need to know entire "stack" of nodes. CollectionRenderer would traverse to bottom node render that first and then go up in stack.
-
-        # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
-        # but also needs locals[:pb_parent] to apply rendered partial to top level protobuf message.
-
-        # This logic could be found in CollectionRenderer#build_rendered_collection method that we over wrote.
-        options[:locals].merge!(pb: ::PbbuilderTemplate.new(@context, new_message_for(field)))
-        options[:locals].merge!(pb_parent: self)
-        options[:locals].merge!(field: field)
-
-        if options.has_key?(:layout)
-          raise ::NotImplementedError, "The `:layout' option is not supported in collection rendering."
-        end
-
-        if options.has_key?(:spacer_template)
-          raise ::NotImplementedError, "The `:spacer_template' option is not supported in collection rendering."
-        end
-
-        CollectionRenderer
-          .new(@context.lookup_context, options) { |&block| _scope(message[field.to_s],&block) }
-          .render_collection_with_partial(collection, partial, @context, nil)
+        _render_collection_with_options(field, kwargs[:collection], kwargs)
       else
+        # # example syntax that should end up here:
         # pb.best_friend partial: "person", person: @best_friend
-        # Call set! as a submessage, passing in the kwargs as partial options
+
         super(field, *args) do
           _render_partial_with_options(kwargs)
         end
       end
     else
-      super
+      if args.one? && kwargs.has_key?(:collection) && kwargs.has_key?(:as)
+        # example syntax that should end up here:
+        #   pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
+        _render_collection_with_options(field, kwargs[:collection], kwargs.merge(partial: args.first))
+      else
+        super
+      end
     end
   end
 
@@ -119,10 +107,42 @@ class PbbuilderTemplate < Pbbuilder
 
   private
 
+  # Uses ActionView::CollectionRenderer to render collection effectively and to use rails built in fragment caching support.
+  #
+  # The way recursive rendering works is that the CollectionRenderer needs to be aware of the node its currently rendering and parent node.
+  # There is no need to know the entire "stack" of nodes. ActionView::CollectionRenderer would traverse to bottom node render it first and then go one leve up in stack,
+  # rince and repeat until entire stack is rendered.
+
+  # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
+  # but also needs locals[:pb_parent] to apply the rendered partial to the top level protobuf message.
+
+  # This logic can be found in CollectionRenderer#build_rendered_collection method that we overwrote.
+  def _render_collection_with_options(field, collection, options)
+    partial = options[:partial]
+
+    options.reverse_merge! locals: options.except(:partial, :as, :collection, :cached)
+    options.reverse_merge! ::PbbuilderTemplate.template_lookup_options
+
+    options[:locals].merge!(pb: ::PbbuilderTemplate.new(@context, new_message_for(field)))
+    options[:locals].merge!(pb_parent: self)
+    options[:locals].merge!(field: field)
+
+    if options.has_key?(:layout)
+      raise ::NotImplementedError, "The `:layout' option is not supported in collection rendering."
+    end
+
+    if options.has_key?(:spacer_template)
+      raise ::NotImplementedError, "The `:spacer_template' option is not supported in collection rendering."
+    end
+
+    CollectionRenderer
+      .new(@context.lookup_context, options) { |&block| _scope(message[field.to_s],&block) }
+      .render_collection_with_partial(collection, partial, @context, nil)
+  end
+
   # Writes to cache, if cache with keys is missing.
   #
   # @return fragment value
-
   def _cache_fragment_for(key, options, &block)
     key = _cache_key(key, options)
     _read_fragment_cache(key, options) || _write_fragment_cache(key, options, &block)
