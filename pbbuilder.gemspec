@@ -14,8 +14,11 @@ Gem::Specification.new do |spec|
   spec.files = `git ls-files`.split("\n")
   spec.test_files = `git ls-files -- test/*`.split("\n")
 
-  spec.add_dependency "google-protobuf"
-  spec.add_dependency "activesupport"
+  spec.add_runtime_dependency "google-protobuf"
+  # Rails has shipped an incompatible change in ActiveView, that was reverted in later versions.
+  # @see https://github.com/rails/rails/pull/51023
+  excluded_versions = ["7.1.0", "7.1.1", "7.1.2", "7.1.3"].map { |v| "!= #{v}" }
+  spec.add_runtime_dependency "activesupport", *excluded_versions
   spec.add_development_dependency 'm'
   spec.add_development_dependency "pry"
 end
