@@ -25,9 +25,36 @@ class PbbuilderTest < ActiveSupport::TestCase
 
     assert_equal "Hello world", person.name
     assert_equal "Friend #1", person.friends.first.name
-    assert_equal ["ok", "that's", "cool"], person.field_mask.paths
+    assert_equal ["cool"], person.field_mask.paths
     assert_equal "Manuelo", person.best_friend.name
     assert_equal "Eggs", person.favourite_foods["Breakfast"]
+  end
+
+  test "replaces the repeated field's value with the last one set" do
+    person = Pbbuilder.new(API::Person.new) do |pb|
+      pb.field_mask do
+        pb.paths ["ok", "that's"]
+      end
+    end.target!
+
+    p = Pbbuilder.new(person) do |pb|
+      pb.field_mask do
+        pb.paths ["ok", "that's"]
+      end
+    end.target!
+
+    assert_equal(["ok", "that's"], p.field_mask.paths)
+  end
+  
+  test "sets the last value of the repeated field to be the only value" do
+    person = Pbbuilder.new(API::Person.new) do |pb|
+      pb.field_mask do
+        pb.paths ["ok", "that's"]
+        pb.paths ["cool"]
+      end
+    end.target!
+
+    assert_equal ["cool"], person.field_mask.paths
   end
 
   test "it can extract fields in a nice way" do
