@@ -75,12 +75,12 @@ class Pbbuilder
         if arg.respond_to?(:to_hash)
           # example syntax that should end up here:
           #   pb.fields {"one" => "two"}
+
           arg.to_hash.each { |k, v| @message[name][k] = v }
         elsif arg.respond_to?(:to_ary) && !descriptor.type.eql?(:message)
           # pb.fields ["one", "two"]
-          # Using concat so it behaves the same as _append_repeated
 
-          @message[name].concat arg.to_ary
+          @message[name].replace arg.to_ary
         elsif arg.respond_to?(:to_ary) && descriptor.type.eql?(:message)
           # example syntax that should end up here:
           #   pb.friends [Person.new(name: "Johnny Test"), Person.new(name: "Max Verstappen")]
@@ -89,11 +89,13 @@ class Pbbuilder
         else
           # example syntax that should end up here:
           #   pb.fields "one"
-          @message[name].push arg
+
+          @message[name].replace [arg]
         end
       else
         # example syntax that should end up here:
         #   pb.field "value"
+        
         @message[name] = arg
       end
     else
