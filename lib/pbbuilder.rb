@@ -84,9 +84,10 @@ class Pbbuilder
         elsif arg.respond_to?(:to_ary) && descriptor.type.eql?(:message)
           # pb.friends [Person.new(name: "Johnny Test"), Person.new(name: "Max Verstappen")]
           #
-          # This acceopts both objects that can be to_hash-translated into keyword arguments
-          # for creating a nested Protobuf message, and actual proto messages which can
-          # be assigned "as is". With "as-is" assignment the proto message can be stored
+          # Accepts both objects that can be to_hash-translated into keyword arguments
+          # for creating a nested proto message object and actual proto message objects
+          # which can be assigned "as is". With "as-is" assignment the proto message can be stored
+          # in memory and reused
           nested_messages = arg.map do |arg_member_message_or_hash|
             # If the arg passed already is a proto message and is the same as the
             # field expects - just use it as-is
