@@ -30,6 +30,23 @@ class PbbuilderTest < ActiveSupport::TestCase
     assert_equal "Eggs", person.favourite_foods["Breakfast"]
   end
 
+  test "allows assignment of prefab nested proto messages" do
+    max_proto = API::Person.new(name: "Max Verstappen")
+    james_proto = API::Person.new(name: "James Hunt")
+    friend_protos = [max_proto, james_proto]
+
+    person = Pbbuilder.new(API::Person.new) do |pb|
+      pb.name "Niki Lauda"
+      pb.friends friend_protos
+      pb.best_friend james_proto
+    end.target!
+
+    assert_equal "Niki Lauda", person.name
+    assert_equal "Max Verstappen", person.friends[0].name
+    assert_equal "James Hunt", person.friends[1].name
+    assert_equal "James Hunt", person.best_friend.name
+  end
+
   test "replaces the repeated field's value with the last one set" do
     person = Pbbuilder.new(API::Person.new) do |pb|
       pb.field_mask do
