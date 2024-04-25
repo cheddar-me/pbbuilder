@@ -4,6 +4,11 @@ PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) M
 
 At least Rails 6.1 is required.
 
+> [!WARNING]  
+> There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings. This is only present
+> in Rails 7.1, and is fixed in Rails. However, a 7.1 gem containing the fix hasn't been released yet. For the moment you should refrain
+> from using pbbuilder and rails-twirp with Rails 7.1 and wait for the next version to be released.
+
 ## Compatibility with jBuilder
 We don't aim to have 100% compitability and coverage with jbuilder gem, but we closely follow jbuilder's API design to maintain familiarity.
 
