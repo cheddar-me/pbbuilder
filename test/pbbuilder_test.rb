@@ -62,7 +62,7 @@ class PbbuilderTest < ActiveSupport::TestCase
 
     assert_equal(["ok", "that's"], p.field_mask.paths)
   end
-  
+
   test "sets the last value of the repeated field to be the only value" do
     person = Pbbuilder.new(API::Person.new) do |pb|
       pb.field_mask do

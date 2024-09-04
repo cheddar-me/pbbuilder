@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
+require "pbbuilder/pbbuilder"
 require 'pbbuilder/errors'
 require "pbbuilder/protobuf_extension"
 require "pbbuilder/railtie" if defined?(Rails)
 
-
-# Pbbuilder makes it easy to create a protobuf message using the builder pattern
+# Pbbuilder makes it easy to create a protobuf message using the builder pattern.
 # It is heavily inspired by jbuilder
 #
 # Given this example message definition:
@@ -14,8 +14,10 @@ require "pbbuilder/railtie" if defined?(Rails)
 #   repeated Person friends = 2;
 # }
 #
-# You could use Pbbuilder as follows:
+# You can use Pbbuilder as follows:
+#
 # person = RPC::Person.new
+#
 # Pbbuilder.new(person) do |pb|
 #   pb.name "Hello"
 #   pb.friends [1, 2, 3] do |number|
@@ -28,8 +30,9 @@ require "pbbuilder/railtie" if defined?(Rails)
 # It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind
 # of protobuf message it needs to create.
 
-class Pbbuilder < BasicObject
+class Pbbuilder
   def initialize(message)
+    # The term message is a bit vague perhaps, but it points to a Google::Protobuf object
     @message = message
 
     yield self if ::Kernel.block_given?
@@ -47,18 +50,12 @@ class Pbbuilder < BasicObject
     !!_descriptor_for_field(field)
   end
 
-  # Make it possible to raise - this is the same functionality
-  # that ActiveSupport::BasicObject used to be adding to BasicObject,
-  # mostly for convenience
-  def raise(*args)
-    ::Object.send(:raise, *args)
-  end
-
   def set!(field, *args, &block)
     name = field.to_s
     descriptor = _descriptor_for_field(name)
-    ::Kernel.raise ::ArgumentError, "Unknown field #{name}" if descriptor.nil?
+    ::Kernel.raise ::ArgumentError, "Unknown field: #{name}" if descriptor.nil?
 
+    # An block is used to pass on children
     if ::Kernel.block_given?
       ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
@@ -72,9 +69,11 @@ class Pbbuilder < BasicObject
         # example syntax that should end up here:
         #   pb.field { pb.name "hello" }
         ::Kernel.raise ::ArgumentError, "wrong number of arguments (expected 0)" unless args.empty?
+
         message = (@message[name] ||= _new_message_from_descriptor(descriptor))
         _scope(message, &block)
       end
+    # No block given, but with 1 argument
     elsif args.length == 1
       arg = args.first
       if descriptor.label == :repeated
@@ -112,7 +111,7 @@ class Pbbuilder < BasicObject
       else
         # example syntax that should end up here:
         #   pb.field "value"
-        
+
         @message[name] = arg
       end
     else
@@ -216,7 +215,7 @@ class Pbbuilder < BasicObject
     @message[name].push(*elements)
   end
 
-  # Yields an Protobuf object in a scope of message and provided values.
+  # Yields a Protobuf object in the scope of message and provided values.
   #
   # @param message Google::Protobuf::(field_type)
   def _scope(message)
@@ -228,7 +227,7 @@ class Pbbuilder < BasicObject
     @message = old_message
   end
 
-  # Build up empty protobuf message based on descriptor
+  # Build up empty protobuf message based on the given descriptor
   #
   # @param descriptor Google::Protobuf::FieldDescriptor
   def _new_message_from_descriptor(descriptor)

@@ -57,7 +57,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   test "collection partial with fragment caching enabled" do
     template = <<-PBBUILDER
       racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
-      pb.friends partial: "racers/racer", as: :racer, collection: racers, cached: true
+      pb.friends partial: "racers/racer", collection: racers, cached: true, as: :racer
     PBBUILDER
     result = render(template)
 

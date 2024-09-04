@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "bundler/setup"
 require "bundler/gem_tasks"
 require "rake/testtask"
 
@@ -11,9 +10,15 @@ if !ENV["APPRAISAL_INITIALIZED"] && !ENV["CI"]
 else
   Rake::TestTask.new(:test) do |t|
     t.libs << "test"
-    t.pattern = "test/**/*_test.rb"
-    t.verbose = false
-    t.warning = false
+    t.libs << "lib"
+
+    file_name = ARGV[1]
+
+    t.test_files = if file_name
+      [file_name]
+    else
+      FileList["test/**/*_test.rb"]
+    end
   end
 
   task default: :test

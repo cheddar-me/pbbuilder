@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pbbuilder'
+require "pbbuilder/pbbuilder"
 
 class Pbbuilder
   class MergeError < ::StandardError
