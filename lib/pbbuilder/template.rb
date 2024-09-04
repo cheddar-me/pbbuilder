@@ -128,11 +128,11 @@ class PbbuilderTemplate < Pbbuilder
     options[:locals].merge!(field: field)
 
     if options.has_key?(:layout)
-      raise ::NotImplementedError, "The `:layout' option is not supported in collection rendering."
+      ::Kernel.raise ::NotImplementedError, "The `:layout' option is not supported in collection rendering."
     end
 
     if options.has_key?(:spacer_template)
-      raise ::NotImplementedError, "The `:spacer_template' option is not supported in collection rendering."
+      ::Kernel.raise ::NotImplementedError, "The `:spacer_template' option is not supported in collection rendering."
     end
 
     CollectionRenderer

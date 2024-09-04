@@ -106,7 +106,7 @@ class Pbbuilder
       else
         # example syntax that should end up here:
         #   pb.field "value"
-        
+
         @message[name] = arg
       end
     else
