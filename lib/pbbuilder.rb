@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "pbbuilder/pbbuilder"
 require 'pbbuilder/errors'
 require "pbbuilder/protobuf_extension"
 require "pbbuilder/railtie" if defined?(Rails)
@@ -29,7 +28,7 @@ require "pbbuilder/railtie" if defined?(Rails)
 # It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind
 # of protobuf message it needs to create.
 
-class Pbbuilder
+class Pbbuilder < BasicObject
   def initialize(message)
     @message = message
 
@@ -46,6 +45,13 @@ class Pbbuilder
 
   def respond_to_missing?(field)
     !!_descriptor_for_field(field)
+  end
+
+  # Make it possible to raise - this is the same functionality
+  # that ActiveSupport::BasicObject used to be adding to BasicObject,
+  # mostly for convenience
+  def raise(*args)
+    ::Object.send(:raise, *args)
   end
 
   def set!(field, *args, &block)
