@@ -111,7 +111,7 @@ class PbbuilderTemplate < Pbbuilder
   #
   # The way recursive rendering works is that the CollectionRenderer needs to be aware of the node it's currently rendering and it's parent node.
   # There is no need to know the entire "stack" of nodes. ActionView::CollectionRenderer will traverse to the bottom node, render it first and then go one level up in the stack.
-  # Rince and repeat until the entire stack is rendered.
+  # Rinse and repeat until the entire stack is rendered.
 
   # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
   # but also needs locals[:pb_parent] to apply the rendered partial to the top level protobuf message.
@@ -172,10 +172,9 @@ class PbbuilderTemplate < Pbbuilder
         begin
           ::Rails.cache.write(key, value, options)
         rescue ::SystemCallError
-          # In case ActiveSupport::Cache::FileStore in Rails is used as a cache,
-          # File.atomic_write can have a race condition and fail to rename temporary
-          # file. We're attempting to recover from that, by catching this specific
-          # error and returning a value.
+          # In case `ActiveSupport::Cache::FileStore` in Rails is used as a cache,
+          # `File.atomic_write` can have a race condition and fails to rename temporary file.
+          # We're attempting to recover from that by catching this specific error and returning a value.
           #
           # @see https://github.com/rails/rails/pull/44151
           # @see https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/file/atomic.rb#L50
