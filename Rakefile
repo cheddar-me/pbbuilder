@@ -25,7 +25,7 @@ else
 
     t.test_files = if file_name
       if test_name
-        ENV["TESTOPTS"] = ENV["TESTOPTS"] + " --name=#{test_name}"
+        ENV["TESTOPTS"] += " --name=test_#{test_name}"
       end
       [file_name]
     else
