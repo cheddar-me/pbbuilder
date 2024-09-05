@@ -17,6 +17,7 @@ class PbbuilderTemplate < Pbbuilder
   end
 
   # Render a partial. Can be called as:
+  #
   # pb.partial! "name/of_partial", argument: 123
   # pb.partial! "name/of_partial", locals: {argument: 123}
   # pb.partial! partial: "name/of_partial", argument: 123
@@ -30,7 +31,7 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
-  # Set the value in the message field.
+  # Sets the value in the message field.
   #
   # @example
   #  pb.friends @friends, partial: "friend", as: :friend
@@ -39,31 +40,30 @@ class PbbuilderTemplate < Pbbuilder
   #  pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
 
   def set!(field, *args, **kwargs, &block)
-    # If partial options are being passed, we render a submessage with a partial
+    # If any partial options are being passed, we render a submessage with a partial
     if kwargs.has_key?(:partial)
       if args.one? && kwargs.has_key?(:as)
-        # example syntax that should end up here:
+        # Example syntax that should end up here:
         #   pb.friends @friends, partial: "friend", as: :friend
         # Call set! on the super class, passing in a block that renders a partial for every element
         super(field, *args) do |element|
           _set_inline_partial(element, kwargs)
         end
       elsif kwargs.has_key?(:collection) && kwargs.has_key?(:as)
-        # example syntax that should end up here:
+        # Example syntax that should end up here:
         #   pb.friends partial: "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
 
         _render_collection_with_options(field, kwargs[:collection], kwargs)
       else
-        # # example syntax that should end up here:
+        # Example syntax that should end up here:
         # pb.best_friend partial: "person", person: @best_friend
-
         super(field, *args) do
           _render_partial_with_options(kwargs)
         end
       end
     else
       if args.one? && kwargs.has_key?(:collection) && kwargs.has_key?(:as)
-        # example syntax that should end up here:
+        # Example syntax that should end up here:
         #   pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]
         _render_collection_with_options(field, kwargs[:collection], kwargs.merge(partial: args.first))
       else
@@ -72,7 +72,7 @@ class PbbuilderTemplate < Pbbuilder
     end
   end
 
-  # Caches fragment of message. Can be called like the following:
+  # Caches a fragment of a message with a given cache key. Can be called like the following:
   # 'pb.cache! "cache-key" do; end'
   # 'pb.cache! "cache-key", expire_in: 1.min do; end'
   #
@@ -107,16 +107,16 @@ class PbbuilderTemplate < Pbbuilder
 
   private
 
-  # Uses ActionView::CollectionRenderer to render collection effectively and to use rails built in fragment caching support.
+  # Uses ActionView::CollectionRenderer to render the collection effectively and to use rails' built-in fragment caching support.
   #
-  # The way recursive rendering works is that the CollectionRenderer needs to be aware of the node its currently rendering and parent node.
-  # There is no need to know the entire "stack" of nodes. ActionView::CollectionRenderer would traverse to bottom node render it first and then go one leve up in stack,
-  # rince and repeat until entire stack is rendered.
+  # The way recursive rendering works is that the CollectionRenderer needs to be aware of the node it's currently rendering and it's parent node.
+  # There is no need to know the entire "stack" of nodes. ActionView::CollectionRenderer will traverse to the bottom node, render it first and then go one level up in the stack.
+  # Rince and repeat until the entire stack is rendered.
 
   # CollectionRenderer uses locals[:pb] to render the partial as a protobuf message,
   # but also needs locals[:pb_parent] to apply the rendered partial to the top level protobuf message.
 
-  # This logic can be found in CollectionRenderer#build_rendered_collection method that we overwrote.
+  # This logic can be found in the CollectionRenderer#build_rendered_collection method that we overwrote.
   def _render_collection_with_options(field, collection, options)
     partial = options[:partial]
 

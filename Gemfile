@@ -7,5 +7,3 @@ gemspec
 
 gem "rake"
 gem "appraisal"
-
-gem "ruby-lsp"

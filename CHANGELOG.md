@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 This format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.18.0
+### Added
+- Add support for rails 7.2, but leave out rails 7.1 support. This is because ActionView has a breaking bug in 7.1 that renders the template back as a string
+instead of an object, like we need for Pbbuilder https://github.com/rails/rails/pull/51023
+
 ## 0.17.0
 ### Changed
 - Instead of appending to repeated enum message, we're replacing it to avoid issues in case output will be rendered twice

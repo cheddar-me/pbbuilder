@@ -4,19 +4,18 @@ PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) M
 
 At least Rails 6.1 is required.
 
-> [!WARNING]  
-> There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings. This is only present
-> in Rails 7.1, and is fixed in Rails. However, a 7.1 gem containing the fix hasn't been released yet. For the moment you should refrain
-> from using pbbuilder and rails-twirp with Rails 7.1 and wait for the next version to be released.
+> [!WARNING]
+> There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings, but for Pbbuilder we need the raw objects.
+> This is only present in Rails 7.1, and a fix is released in Rails 7.2. https://github.com/rails/rails/pull/51023
 
 ## Compatibility with jBuilder
 We don't aim to have 100% compitability and coverage with jbuilder gem, but we closely follow jbuilder's API design to maintain familiarity.
 
 | | Jbuilder | Pbbuilder |
 |---|---|---|
-|  set! | ✅ | ✅ |
-|  cache! | ✅ | ✅ |
-|  cache_if! | ✅ | ✅ |
+| set! | ✅ | ✅ |
+| cache! | ✅ | ✅ |
+| cache_if! | ✅ | ✅ |
 | cache_root! | ✅|  |
 | fragment cache | ✅| ✅ |
 | extract! | ✅ | ✅ |
@@ -25,7 +24,7 @@ We don't aim to have 100% compitability and coverage with jbuilder gem, but we c
 | array! | ✅ |  |
 | .call | ✅ |  |
 
-Due to protobuf message implementation, there is absolutely no need to implement support for `deep_format_keys!`, `key_format!`, `key_format`, `deep_format_keys`, `ignore_nil!`, `ignore_nil!`, `nil`. So those would never be added.
+Due to the protobuf message implementation, there is absolutely no need to implement support for `deep_format_keys!`, `key_format!`, `key_format`, `deep_format_keys`, `ignore_nil!`, `ignore_nil!`, `nil`. So those would never be added.
 
 ## Usage
 The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
@@ -61,7 +60,7 @@ pb.phone_number account.phone_number
 pb.tag account.tag
 ```
 
-could be rewritten to a shorter version with a use of `extract!`.
+can be rewritten to a shorter version with a use of `extract!`.
 ```
 pb.extract! account, :id, :phone_number, :tag
 ```
@@ -80,7 +79,7 @@ Using partial while passing a variable to it
 pb.account partial: "account", account: @account
 ```
 
-Here is way to use partials with collection while passing a variable to it
+Here is a way to use partials with collection while passing a variable to it
 
 ```
 pb.accounts @accounts, partial: "account", as: account
