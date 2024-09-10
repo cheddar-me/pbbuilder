@@ -1,12 +1,10 @@
 # Pbbuilder
-PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to [JBuilder](https://rubygems.org/gems/jbuilder) gem.
+PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to the [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
 
-At least Rails 6.1 is required.
-
-> [!WARNING]
-> There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings, but for Pbbuilder we need the raw objects.
-> This is only present in Rails 7.1, and a fix is released in Rails 7.2. https://github.com/rails/rails/pull/51023
+At least Rails 6.1 is required and rails 7.1 is currently not supported.
+There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings, but for Pbbuilder we need the raw objects.
+This is only present in Rails 7.1, and a fix is released in Rails 7.2. https://github.com/rails/rails/pull/51023
 
 ## Compatibility with jBuilder
 We don't aim to have 100% compitability and coverage with jbuilder gem, but we closely follow jbuilder's API design to maintain familiarity.
@@ -60,7 +58,7 @@ pb.phone_number account.phone_number
 pb.tag account.tag
 ```
 
-can be rewritten to a shorter version with a use of `extract!`.
+can be rewritten to a shorter version with the use of `extract!`.
 ```
 pb.extract! account, :id, :phone_number, :tag
 ```
@@ -79,7 +77,7 @@ Using partial while passing a variable to it
 pb.account partial: "account", account: @account
 ```
 
-Here is a way to use partials with collection while passing a variable to it
+Here is a way to use partials with a collection while passing a variable to it
 
 ```
 pb.accounts @accounts, partial: "account", as: account
@@ -95,7 +93,7 @@ pb.friends partial: "racers/racer", as: :racer, collection: @racers
 pb.friends "racers/racer", as: :racer, collection: @racers
 ```
 
-And there are other ways, that don't use Collection Renderer (not very effective probably)
+And there are other ways, that don't use CollectionRenderer
 ```ruby
 pb.partial! @racer, racer: Racer.new(123, "Chris Harris", friends)
 ```
@@ -104,7 +102,7 @@ pb.friends @friends, partial: "racers/racer", as: :racer
 ```
 
 ### Caching
-it uses Rails.cache and works like caching in HTML templates:
+It uses Rails.cache and works like caching in HTML templates:
 
 ```
 pb.cache! "cache-key", expires_in: 10.minutes do
@@ -120,7 +118,7 @@ pb.cache_if! !admin?, "cache-key", expires_in: 10.minutes do
 end
 ```
 
-Fragment caching currently works through ActionView::CollectionRenderer and can be used only with the following syntax:
+Fragment caching currently works through ActionView::CollectionRenderer and can only be used with the following syntax:
 
 ```ruby
 pb.friends partial: "racers/racer", as: :racer, collection: @racers, cached: true
@@ -150,10 +148,14 @@ $ gem install pbbuilder
 
 When debugging, make sure to prepend `::Kernel` to any calls such as `puts` as otherwise the code will think you're trying to add another attribute into protobuf object.
 
-In case, you're looking to use breakpoints for debugging purposes - it's better to use `pry`. Just make sure to [change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`](lib/pbbuilder/pbbuilder.rb).
+In case you're looking to use breakpoints (for debugging purposes via `binding.pry` for instance), let Pbbuilder inherit from `Object` instead of `BasicObject`]
+Seen in:
+[Pbbuilder](lib/pbbuilder/pbbuilder.rb)
+[Errors](lib/pbbuilder/errors.rb)
 
 ## Testing
-Running `bundle exec appraisal rake test` locally will run entire testsuit with all version of rails. To run tests only for certain rails version do the following `bundle exec appraisal rails-7-0 rake test`
+Running `bundle exec appraisal rake test` locally will run the entire testsuit with all versions of rails.
+To run tests only for a certain rails version do the following `bundle exec appraisal rails-7-0 rake test`
 
 To run only one tests from file - use `m` utility. Like this:
 `bundle exec appraisal rails-7-0 m test/pbbuilder_template_test.rb:182`

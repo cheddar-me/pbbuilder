@@ -29,7 +29,7 @@ require "pbbuilder/railtie" if defined?(Rails)
 # It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind
 # of protobuf message it needs to create.
 
-class Pbbuilder
+class Pbbuilder < BasicObject
   def initialize(message)
     @message = message
 
