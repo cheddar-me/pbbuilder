@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
-require "pbbuilder/pbbuilder"
-require 'pbbuilder/errors'
+require "pbbuilder/errors"
 require "pbbuilder/protobuf_extension"
 require "pbbuilder/railtie" if defined?(Rails)
 
-
-# Pbbuilder makes it easy to create a protobuf message using the builder pattern
+# Pbbuilder makes it easy to create a protobuf message using the builder pattern.
 # It is heavily inspired by jbuilder
 #
 # Given this example message definition:
@@ -15,8 +13,10 @@ require "pbbuilder/railtie" if defined?(Rails)
 #   repeated Person friends = 2;
 # }
 #
-# You could use Pbbuilder as follows:
+# You can use Pbbuilder as follows:
+#
 # person = RPC::Person.new
+#
 # Pbbuilder.new(person) do |pb|
 #   pb.name "Hello"
 #   pb.friends [1, 2, 3] do |number|
@@ -29,7 +29,7 @@ require "pbbuilder/railtie" if defined?(Rails)
 # It basically works exactly like jbuilder. The main difference is that it can use introspection to figure out what kind
 # of protobuf message it needs to create.
 
-class Pbbuilder
+class Pbbuilder < BasicObject
   def initialize(message)
     @message = message
 
@@ -48,11 +48,15 @@ class Pbbuilder
     !!_descriptor_for_field(field)
   end
 
+  # When calling for ex: response.drivers, where response is a Google::Protobuf object, 'drivers' is not a method on that. These
+  # methods (or messages in our case) get added here. This is of course based on what kind of message it is. Singular, an array
+  # (repeated) etc. with their arguments.
   def set!(field, *args, &block)
     name = field.to_s
     descriptor = _descriptor_for_field(name)
-    ::Kernel.raise ::ArgumentError, "Unknown field #{name}" if descriptor.nil?
+    ::Kernel.raise ::ArgumentError, "Unknown field: #{name}" if descriptor.nil?
 
+    # An block is used to pass on it's children
     if ::Kernel.block_given?
       ::Kernel.raise ::ArgumentError, "can't pass block to non-message field" unless descriptor.type == :message
 
@@ -66,9 +70,11 @@ class Pbbuilder
         # example syntax that should end up here:
         #   pb.field { pb.name "hello" }
         ::Kernel.raise ::ArgumentError, "wrong number of arguments (expected 0)" unless args.empty?
+
         message = (@message[name] ||= _new_message_from_descriptor(descriptor))
         _scope(message, &block)
       end
+    # No block given, but with 1 argument
     elsif args.length == 1
       arg = args.first
       if descriptor.label == :repeated
@@ -106,7 +112,7 @@ class Pbbuilder
       else
         # example syntax that should end up here:
         #   pb.field "value"
-        
+
         @message[name] = arg
       end
     else
@@ -128,6 +134,8 @@ class Pbbuilder
     end
   end
 
+  # Shorthand command for getting a few attributes from an object.
+  #     pb.extract! racer, :name, :id, :age
   def extract!(element, *args)
     args.each { |arg| @message[arg.to_s] = element.send(arg) }
   end
@@ -181,6 +189,7 @@ class Pbbuilder
     @message
   end
 
+  # @param field string
   def new_message_for(field)
     descriptor = _descriptor_for_field(field)
     ::Kernel.raise ::ArgumentError, "Unknown field #{field}" if descriptor.nil?
@@ -190,11 +199,14 @@ class Pbbuilder
 
   private
 
+  # Lookup the field name (or 'attribute' name, for ex "best_friend") on the Google descriptor (Google::Protobuf::Descriptor) of our
+  # message object.
+  # @param field string
   def _descriptor_for_field(field)
     @message.class.descriptor.lookup(field.to_s)
   end
 
-  # Appends protobuf message with existing @message object
+  # Appends protobuf objects to our 'repeated' attribute. This can create a list of items to a repeated field.
   #
   # @param name string
   # @param descriptor Google::Protobuf::FieldDescriptor
@@ -210,7 +222,8 @@ class Pbbuilder
     @message[name].push(*elements)
   end
 
-  # Yields an Protobuf object in a scope of message and provided values.
+  # Yields a Protobuf object in the scope of message and provided values.
+  # This will 'assign' the field values as it were to the message attributes.
   #
   # @param message Google::Protobuf::(field_type)
   def _scope(message)
@@ -222,7 +235,7 @@ class Pbbuilder
     @message = old_message
   end
 
-  # Build up empty protobuf message based on descriptor
+  # Builds up an empty protobuf message based on the given descriptor.
   #
   # @param descriptor Google::Protobuf::FieldDescriptor
   def _new_message_from_descriptor(descriptor)

@@ -1,22 +1,19 @@
 # Pbbuilder
-PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to [JBuilder](https://rubygems.org/gems/jbuilder) gem.
+PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to the [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
 
-At least Rails 6.1 is required.
-
-> [!WARNING]  
-> There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings. This is only present
-> in Rails 7.1, and is fixed in Rails. However, a 7.1 gem containing the fix hasn't been released yet. For the moment you should refrain
-> from using pbbuilder and rails-twirp with Rails 7.1 and wait for the next version to be released.
+At least Rails 6.1 is required and rails 7.1 is currently not supported.
+There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings, but for Pbbuilder we need the raw objects.
+This is only present in Rails 7.1, and a fix is released in Rails 7.2. https://github.com/rails/rails/pull/51023
 
 ## Compatibility with jBuilder
 We don't aim to have 100% compitability and coverage with jbuilder gem, but we closely follow jbuilder's API design to maintain familiarity.
 
 | | Jbuilder | Pbbuilder |
 |---|---|---|
-|  set! | ✅ | ✅ |
-|  cache! | ✅ | ✅ |
-|  cache_if! | ✅ | ✅ |
+| set! | ✅ | ✅ |
+| cache! | ✅ | ✅ |
+| cache_if! | ✅ | ✅ |
 | cache_root! | ✅|  |
 | fragment cache | ✅| ✅ |
 | extract! | ✅ | ✅ |
@@ -25,7 +22,7 @@ We don't aim to have 100% compitability and coverage with jbuilder gem, but we c
 | array! | ✅ |  |
 | .call | ✅ |  |
 
-Due to protobuf message implementation, there is absolutely no need to implement support for `deep_format_keys!`, `key_format!`, `key_format`, `deep_format_keys`, `ignore_nil!`, `ignore_nil!`, `nil`. So those would never be added.
+Due to the protobuf message implementation, there is absolutely no need to implement support for `deep_format_keys!`, `key_format!`, `key_format`, `deep_format_keys`, `ignore_nil!`, `ignore_nil!`, `nil`. So those would never be added.
 
 ## Usage
 The main difference is that it can use introspection to figure out what kind of protobuf message it needs to create.
@@ -61,7 +58,7 @@ pb.phone_number account.phone_number
 pb.tag account.tag
 ```
 
-could be rewritten to a shorter version with a use of `extract!`.
+can be rewritten to a shorter version with the use of `extract!`.
 ```
 pb.extract! account, :id, :phone_number, :tag
 ```
@@ -80,7 +77,7 @@ Using partial while passing a variable to it
 pb.account partial: "account", account: @account
 ```
 
-Here is way to use partials with collection while passing a variable to it
+Here is a way to use partials with a collection while passing a variable to it
 
 ```
 pb.accounts @accounts, partial: "account", as: account
@@ -96,7 +93,7 @@ pb.friends partial: "racers/racer", as: :racer, collection: @racers
 pb.friends "racers/racer", as: :racer, collection: @racers
 ```
 
-And there are other ways, that don't use Collection Renderer (not very effective probably)
+And there are other ways, that don't use CollectionRenderer
 ```ruby
 pb.partial! @racer, racer: Racer.new(123, "Chris Harris", friends)
 ```
@@ -105,7 +102,7 @@ pb.friends @friends, partial: "racers/racer", as: :racer
 ```
 
 ### Caching
-it uses Rails.cache and works like caching in HTML templates:
+It uses Rails.cache and works like caching in HTML templates:
 
 ```
 pb.cache! "cache-key", expires_in: 10.minutes do
@@ -121,7 +118,7 @@ pb.cache_if! !admin?, "cache-key", expires_in: 10.minutes do
 end
 ```
 
-Fragment caching currently works through ActionView::CollectionRenderer and can be used only with the following syntax:
+Fragment caching currently works through ActionView::CollectionRenderer and can only be used with the following syntax:
 
 ```ruby
 pb.friends partial: "racers/racer", as: :racer, collection: @racers, cached: true
@@ -151,10 +148,14 @@ $ gem install pbbuilder
 
 When debugging, make sure to prepend `::Kernel` to any calls such as `puts` as otherwise the code will think you're trying to add another attribute into protobuf object.
 
-In case, you're looking to use breakpoints for debugging purposes - it's better to use `pry`. Just make sure to [change pbbuilder superclass from `ProxyObject/BasicObject` to `Object`](lib/pbbuilder/pbbuilder.rb).
+In case you're looking to use breakpoints (for debugging purposes via `binding.pry` for instance), let Pbbuilder inherit from `Object` instead of `BasicObject`]
+Seen in:
+[Pbbuilder](lib/pbbuilder/pbbuilder.rb)
+[Errors](lib/pbbuilder/errors.rb)
 
 ## Testing
-Running `bundle exec appraisal rake test` locally will run entire testsuit with all version of rails. To run tests only for certain rails version do the following `bundle exec appraisal rails-7-0 rake test`
+Running `bundle exec appraisal rake test` locally will run the entire testsuit with all versions of rails.
+To run tests only for a certain rails version do the following `bundle exec appraisal rails-7-0 rake test`
 
 To run only one tests from file - use `m` utility. Like this:
 `bundle exec appraisal rails-7-0 m test/pbbuilder_template_test.rb:182`

@@ -55,9 +55,15 @@ class << Rails
   end
 end
 
+Pbbuilder::CollectionRenderer.collection_cache = Rails.cache
+
 class Racer < Struct.new(:id, :name, :friends, :best_friend, :logo)
   extend ActiveModel::Naming
   include ActiveModel::Conversion
+
+  def cache_key
+    "racer-#{id}"
+  end
 
   # Fragment caching needs to know, if record could be persisted. We set it to false, this is a default in ActiveModel::API.
   def persisted?

@@ -57,7 +57,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   test "collection partial with fragment caching enabled" do
     template = <<-PBBUILDER
       racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
-      pb.friends partial: "racers/racer", as: :racer, collection: racers, cached: true
+      pb.friends partial: "racers/racer", collection: racers, cached: true, as: :racer
     PBBUILDER
     result = render(template)
 
@@ -83,7 +83,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
   end
 
   test "render collections with partial as arg" do
-    skip("This will be addressed in future version of a gem")
+    skip("This will be addressed in a future version of this gem")
     result = render('pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
 
     assert_equal 2, result.friends.count
