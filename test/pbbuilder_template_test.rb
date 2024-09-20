@@ -74,6 +74,20 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     end
   end
 
+  test "should be possible to pass variable with CollectionRenderer" do
+    template = <<-PBBUILDER
+      racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
+      pb.friends racers, partial: "team", as: :racer, locals: { team_name: "Red Bull Racing" }
+    PBBUILDER
+
+    result = render(template)
+
+    assert_equal 2, result.friends.count
+    result.friends.each do |member|
+      assert_equal "Red Bull Racing", member.team_name
+    end
+  end
+
   test "collection partial with fragment caching enabled" do
     template = <<-PBBUILDER
       racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
