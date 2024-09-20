@@ -15,6 +15,11 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     pb.logo partial: "asset", asset: racer.logo if racer.logo.present?
   PBBUILDER
 
+  TEAM_PARTIAL = <<-PBBUILDER
+    pb.extract! racer, :name
+    pb.team_name team_name
+  PBBUILDER
+
   ASSET_PARTIAL = <<-PBBUILDER
     pb.url asset.url
     pb.url_2x asset.url
@@ -26,6 +31,7 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     "_person.pb.pbbuilder" => PERSON_PARTIAL,
     "racers/_racer.pb.pbbuilder" => RACER_PARTIAL,
     "_asset.pb.pbbuilder" => ASSET_PARTIAL,
+    "_team.pb.pbbuilder" => TEAM_PARTIAL,
 
     # Ensure we find only Pbbuilder partials from within Pbbuilder templates.
     "_person.html.erb" => "Hello world!"
@@ -52,6 +58,20 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     assert_equal "https://google.com/test1.svg", result.friends.first.logo.url
     assert_equal "https://google.com/test2.svg", result.friends.first.friends.first.logo.url
     assert_equal "https://google.com/test3.svg", result.friends.first.friends.first.friends.first.logo.url
+  end
+
+  test "should be possible to pass variable with collection" do
+    template = <<-PBBUILDER
+      racers = [Racer.new(1, "Johnny Test", [], nil, API::Asset.new(url: "https://google.com/test1.svg")), Racer.new(2, "Max Verstappen", [])]
+      pb.friends partial: "team", collection: racers, as: :racer, locals: { team_name: "Red Bull Racing" }
+    PBBUILDER
+
+    result = render(template)
+
+    assert_equal 2, result.friends.count
+    result.friends.each do |member|
+      assert_equal "Red Bull Racing", member.team_name
+    end
   end
 
   test "collection partial with fragment caching enabled" do

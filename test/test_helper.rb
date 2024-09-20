@@ -34,6 +34,7 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
       optional :last_name, :string, 8
       optional :boolean_me, :bool, 9
       optional :logo, :message, 10, "pbbuildertest.Asset"
+      optional :team_name, :string, 11
     end
 
     add_message "pbbuildertest.Asset" do
