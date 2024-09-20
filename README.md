@@ -2,9 +2,13 @@
 PBBuilder generates [Protobuf](https://developers.google.com/protocol-buffers) Messages with a simple DSL similar to the [JBuilder](https://rubygems.org/gems/jbuilder) gem.
 
 
-At least Rails 6.1 is required and rails 7.1 is currently not supported.
+## Compatibility
+This gem only supports Rails 7.0 annd Rails 7.2, **7.1 is not supported**.
+
 There currently is a regression in ActionView (the part of Rails which renders) that forces rendered objects into strings, but for Pbbuilder we need the raw objects.
 This is only present in Rails 7.1, and a fix is released in Rails 7.2. https://github.com/rails/rails/pull/51023
+
+It might work on rails v6, but we don't guarantee that.
 
 ## Compatibility with jBuilder
 We don't aim to have 100% compitability and coverage with jbuilder gem, but we closely follow jbuilder's API design to maintain familiarity.
