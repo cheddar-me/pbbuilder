@@ -40,13 +40,13 @@
 ## 0.14.0
 - Adding `frozen_string_literal: true` to all files.
 
-## 0.13.2 2023.02.3
+## 0.13.2
 - In case ActiveSupport::Cache::FileStore in Rails is used as a cache, File.atomic_write can have a race condition and fail to rename temporary file. We're attempting to recover from that, by catching this specific error and returning a value.
 
-## 0.13.1 2023.01.24
+## 0.13.1
 - #merge! to support boolean values
 
-## 0.13.0 2023.01.18
+## 0.13.0
 - #merge! method added for PbbuilderTemplate class
 - ActiveSupport added as a dependency for gem
 - Fragment Caching support added, with #cache! and #cache_if! methods in PbbuilderTemplate class.
