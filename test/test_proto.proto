@@ -1,0 +1,27 @@
+// This is the source proto file from which Ruby proto descriptors are generated.
+// See test/test_helper.rb for the generation process.
+
+syntax = "proto3";
+
+package pbbuildertest;
+
+import "google/protobuf/field_mask.proto";
+
+message Person {
+  string name = 1;
+  repeated Person friends = 2;
+  Person best_friend = 3;
+  repeated string nicknames = 4;
+  google.protobuf.FieldMask field_mask = 5;
+  map<string, string> favourite_foods = 6;
+  repeated string tags = 7;
+  string last_name = 8;
+  bool boolean_me = 9;
+  Asset logo = 10;
+}
+
+message Asset {
+  string url = 1;
+  string url_2x = 2;
+  string url_3x = 3;
+} 

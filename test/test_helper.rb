@@ -21,28 +21,14 @@ require "pry"
 
 ActiveSupport.test_order = :random
 
-Google::Protobuf::DescriptorPool.generated_pool.build do
-  add_file("pbbuilder.proto", syntax: :proto3) do
-    add_message "pbbuildertest.Person" do
-      optional :name, :string, 1
-      repeated :friends, :message, 2, "pbbuildertest.Person"
-      optional :best_friend, :message, 3, "pbbuildertest.Person"
-      repeated :nicknames, :string, 4
-      optional :field_mask, :message, 5, "google.protobuf.FieldMask"
-      map :favourite_foods, :string, :string, 6
-      repeated :tags, :string, 7
-      optional :last_name, :string, 8
-      optional :boolean_me, :bool, 9
-      optional :logo, :message, 10, "pbbuildertest.Asset"
-    end
-
-    add_message "pbbuildertest.Asset" do
-      optional :url, :string, 1
-      optional :url_2x, :string, 2
-      optional :url_3x, :string, 3
-    end
-  end
+# Regenerate Ruby descriptors from proto if needed, and require them.
+# This does require protoc to be installed
+proto_file = File.expand_path("test_proto.proto", __dir__)
+ruby_out = File.expand_path("test_proto_pb.rb", __dir__)
+if !File.exist?(ruby_out) || File.mtime(ruby_out) < File.mtime(proto_file)
+  system("protoc --proto_path=#{File.dirname(proto_file)} --ruby_out=#{File.dirname(ruby_out)} #{proto_file}")
 end
+require_relative "test_proto_pb"
 
 module API
   Person = ::Google::Protobuf::DescriptorPool.generated_pool.lookup("pbbuildertest.Person").msgclass
