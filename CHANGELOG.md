@@ -10,7 +10,7 @@
 - Remove --verbose when running rake test
 
 ## 0.19.0
-- Add support for rails 7.2, but leave out rails 7.1 support. This is because ActionView has a breaking bug in 7.1 that renders the template back as a string instead of an object, like we need for Pbbuilder https://github.com/rails/rails/pull/51023
+- Add support for rails 7.2, but leave out rails 7.1 support. This is because ActionView has a breaking bug in 7.1 that renders the template back as a string instead of an object, like we need for Pbbuilder https://github.com/rails/rails/pull/51023 This also removes the uses of the Rails variant of BasicObject in favor of the Ruby built-in.
 
 ## 0.18.0
 - Allow literal assignment of protos to fields
