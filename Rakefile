@@ -21,7 +21,7 @@ else
     file_name = ARGV[1]
     test_name = ARGV[2]&.tr(" ", "_")
 
-    ENV["TESTOPTS"] = "--verbose"
+    ENV["TESTOPTS"] = ""
 
     t.test_files = if file_name
       if test_name
