@@ -157,14 +157,26 @@ Seen in:
 [Errors](lib/pbbuilder/errors.rb)
 
 ## Testing
-Running `bundle exec appraisal rake test` locally will run the entire testsuit with all versions of rails.
-To run tests only for a certain rails version do the following `bundle exec appraisal rails-7-0 rake test`
 
-To run only one tests from file - use `m` utility. Like this:
-`bundle exec appraisal rails-7-0 m test/pbbuilder_template_test.rb:182`
+`pbbuilder` is set up with Appraisal so that we can test a couple Rails and google-protobuf versions against our changes. To run the tests for all setups:
+
+```bash
+$ bundle exec appraisal install
+$ bundle exec appraisal rake test
+
+To run tests only for a certain pre-set Gemfile (check the `Appraisals` file to see what's defined):
+
+```bash
+$ bundle exec appraisal rails-7-2 rake test`
+```
+
+To run only one test use `m` utility. Like this:
+`bundle exec appraisal rails-7-2 m test/pbbuilder_template_test.rb:182`
 
 ## Contributing
+
 Everyone is welcome to contribute.
 
 ## License
+
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
