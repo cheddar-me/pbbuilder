@@ -21,11 +21,25 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     pb.url_3x asset.url
   PBBUILDER
 
+  TAGGABLE_PARTIAL = <<-PBBUILDER
+    pb.name taggable.name
+    pb.tags taggable.tags if taggable.tags.any?
+  PBBUILDER
+
+  FRIEND_HOLDER_PARTIAL = <<-PBBUILDER
+    pb.name holder.name
+    pb.friends holder.friends do |f|
+      pb.name f.name
+    end
+  PBBUILDER
+
   PARTIALS = {
     "_partial.pb.pbbuilder" => "pb.name name",
     "_person.pb.pbbuilder" => PERSON_PARTIAL,
     "racers/_racer.pb.pbbuilder" => RACER_PARTIAL,
     "_asset.pb.pbbuilder" => ASSET_PARTIAL,
+    "_taggable.pb.pbbuilder" => TAGGABLE_PARTIAL,
+    "_friend_holder.pb.pbbuilder" => FRIEND_HOLDER_PARTIAL,
 
     # Ensure we find only Pbbuilder partials from within Pbbuilder templates.
     "_person.html.erb" => "Hello world!"
@@ -87,6 +101,51 @@ class PbbuilderTemplateTest < ActiveSupport::TestCase
     result = render('pb.friends "racers/racer", as: :racer, collection: [Racer.new(1, "Johnny Test", []), Racer.new(2, "Max Verstappen", [])]')
 
     assert_equal 2, result.friends.count
+  end
+
+  # Regression test for https://github.com/cheddar-me/pbbuilder/issues/64.
+  # A partial that conditionally writes a repeated scalar field used to leak
+  # the previous element's value into elements that took the silent branch
+  # because the underlying message was reused across iterations.
+  test "collection partial does not leak conditional repeated scalar fields between iterations" do
+    template = <<-PBBUILDER
+      taggable_struct = Struct.new(:name, :tags)
+      items = [
+        taggable_struct.new("alice", ["x", "y"]),
+        taggable_struct.new("bob", []),
+      ]
+      pb.friends partial: "taggable", as: :taggable, collection: items
+    PBBUILDER
+    result = render(template)
+
+    assert_equal 2, result.friends.count
+    assert_equal "alice", result.friends[0].name
+    assert_equal ["x", "y"], result.friends[0].tags.to_a
+    assert_equal "bob", result.friends[1].name
+    assert_equal [], result.friends[1].tags.to_a
+  end
+
+  # Regression test for https://github.com/cheddar-me/pbbuilder/issues/64.
+  # `pb.field collection do |x| ... end` inside a collection partial used to
+  # accumulate elements across iterations because _append_repeated pushed onto
+  # the shared message's repeated field.
+  test "collection partial does not accumulate repeated message blocks between iterations" do
+    template = <<-PBBUILDER
+      holder_struct = Struct.new(:name, :friends)
+      friend_struct = Struct.new(:name)
+      items = [
+        holder_struct.new("alice", [friend_struct.new("a1"), friend_struct.new("a2")]),
+        holder_struct.new("bob", []),
+      ]
+      pb.friends partial: "friend_holder", as: :holder, collection: items
+    PBBUILDER
+    result = render(template)
+
+    assert_equal 2, result.friends.count
+    assert_equal "alice", result.friends[0].name
+    assert_equal ["a1", "a2"], result.friends[0].friends.map(&:name)
+    assert_equal "bob", result.friends[1].name
+    assert_equal 0, result.friends[1].friends.count
   end
 
   test "partial by name with top-level locals" do

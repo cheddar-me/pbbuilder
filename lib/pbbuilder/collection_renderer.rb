@@ -12,7 +12,12 @@ class Pbbuilder
     private
 
     def build_rendered_template(content, template, layout = nil)
-      super(content || pb.attributes!, template)
+      body = content || pb.attributes!
+      # Reset the working message so the next iteration starts with a clean
+      # sub-message and cannot inherit fields written or pushed by this one.
+      # See https://github.com/cheddar-me/pbbuilder/issues/64.
+      pb._reset_message(pb_parent.new_message_for(field))
+      super(body, template)
     end
 
     def build_rendered_collection(templates, _spacer)
