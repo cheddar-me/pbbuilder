@@ -197,6 +197,13 @@ class Pbbuilder < BasicObject
     _new_message_from_descriptor(descriptor)
   end
 
+  # Replaces the underlying message. Used by Pbbuilder::CollectionRenderer to
+  # give each iteration of a `partial:`/`collection:` render a clean message
+  # so fields cannot leak between elements.
+  def _reset_message(message)
+    @message = message
+  end
+
   private
 
   # Lookup the field name (or 'attribute' name, for ex "best_friend") on the Google descriptor (Google::Protobuf::Descriptor) of our

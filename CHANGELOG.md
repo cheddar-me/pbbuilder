@@ -1,5 +1,6 @@
 ## Unreleased
 
+- Fix `partial:`/`collection:` shorthand reusing one sub-message across iterations, which leaked unset fields and accumulated repeated message blocks between elements (#64)
 - Remove official support for Rails 7.0 and Rails 6.x, add Appraisal config for Rails 8.x
 - Bump actions/checkout from 3 to 4 (#40)
 - Drop support for rails v6.* versions (#60)
